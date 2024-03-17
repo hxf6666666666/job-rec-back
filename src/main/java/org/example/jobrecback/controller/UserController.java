@@ -3,10 +3,7 @@ package org.example.jobrecback.controller;
 import jakarta.annotation.Resource;
 import org.example.jobrecback.pojo.User;
 import org.example.jobrecback.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,4 +22,18 @@ public class UserController {
         return userService.findByUserNameContainingAndUserRoleIdAndIsDisabled(userNickname, userRoleId, isDisabled);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteById(id);
+    }
+
+    @PostMapping()
+    public User addUser(@RequestBody User user) {
+        return userService.save(user);
+    }
+
+    @PatchMapping("/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User user) {
+        return userService.updateUser(id,user);
+    }
 }

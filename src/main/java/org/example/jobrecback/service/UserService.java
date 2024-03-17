@@ -7,4 +7,10 @@ import java.util.List;
 
 public interface UserService {
     List<User> findByUserNameContainingAndUserRoleIdAndIsDisabled(String userNickname, Byte userRoleId, Byte isDisabled);
+
+    void deleteById(Long id);
+
+    User save(User user);
+
+    User updateUser(Long id, User user);
 }
