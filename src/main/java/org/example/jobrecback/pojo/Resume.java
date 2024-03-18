@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -29,7 +30,7 @@ public class Resume {
     private String filePath;
 
     @Column(name = "upload_time")
-    private Date uploadTime;
+    private Instant uploadTime;
 
     @Column(name = "resume_status")
     private int resumeStatus;

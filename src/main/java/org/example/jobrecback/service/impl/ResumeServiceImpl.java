@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Date;
+import java.io.File;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -35,12 +38,40 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUserId(userId);
         resume.setFileName(fileName);
         resume.setFileSize(file.getSize());
-        resume.setUploadTime(new Date(System.currentTimeMillis()));
+        resume.setUploadTime(Instant.now());
         resume.setFilePath(uploadDirectory + fileName);
         resume.setResumeStatus(0);
         resume.setIsDeleted(0);
         resumeRepository.save(resume);
-
-        return "简历上传成功";
+        File dest = new File(uploadDirectory + fileName);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(dest);
+            return "简历上传成功";
+        } catch (IOException e) {
+            return "简历上传失败";
+        }
     }
+
+    @Override
+    public List<Resume> findResumeAll(String fileName, Integer resumeStatus) {
+        return resumeRepository.findByFileNameContainingAndResumeStatus(fileName, resumeStatus);
+    }
+
+    @Override
+    public void deleteResume(Long resumeId) {
+        Resume resume = resumeRepository.findResumeById(resumeId);
+        String filePath = resume.getFilePath();
+        // 删除文件
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        resumeRepository.deleteResumeById(resumeId);
+    }
+
 }

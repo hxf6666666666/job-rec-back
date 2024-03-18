@@ -1,6 +1,7 @@
 package org.example.jobrecback.controller;
 
 import jakarta.annotation.Resource;
+import org.example.jobrecback.pojo.Resume;
 import org.example.jobrecback.pojo.User;
 import org.example.jobrecback.service.ResumeService;
 import org.example.jobrecback.service.UserService;
@@ -8,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/resume")
@@ -38,5 +41,16 @@ public class ResumeController {
             // 如果Authorization头部参数不存在或者格式不正确，返回401 Unauthorized
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("缺少身份验证信息");
         }
+    }
+
+    @GetMapping("/all")
+    public List<Resume> getAllResume(@RequestParam(required = false) String fileName,
+                                     @RequestParam(required = false) Integer resumeStatus) {
+        return  resumeService.findResumeAll(fileName, resumeStatus);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteResume(@PathVariable Long id) {
+        resumeService.deleteResume(id);
     }
 }
