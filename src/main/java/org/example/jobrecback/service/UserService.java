@@ -13,4 +13,8 @@ public interface UserService {
     User save(User user);
 
     User updateUser(Long id, User user);
+
+    User findUserById(Long id);
+
+    User findUserByToken(String token);
 }

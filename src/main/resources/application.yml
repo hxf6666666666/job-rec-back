@@ -10,3 +10,13 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      enabled: true
+      # 最大支持文件大小
+      max-file-size: 100MB
+      # 最大支持请求大小
+      max-request-size: 100MB
+resume:
+  upload:
+    directory: D:/resume/

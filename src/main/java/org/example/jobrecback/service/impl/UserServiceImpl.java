@@ -66,4 +66,30 @@ public class UserServiceImpl implements UserService {
         oldUser.setUpdateTime(Instant.now());
         return userRepository.save(oldUser);
     }
+
+    public User findUserById(Long id) {
+        return userRepository.findUserById(id);
+    }
+
+    @Override
+    public User findUserByToken(String token) {
+        // 检查token格式是否正确
+        if (token != null && token.startsWith("Bearer ")) {
+            // 从token中提取用户ID
+            String userIdString = token.substring(7).trim();
+            try {
+                // 将用户ID转换为Long类型
+                Long userId = Long.parseLong(userIdString);
+                // 根据用户ID查询用户信息
+                return userRepository.findById(userId).orElse(null);
+            } catch (NumberFormatException e) {
+                // 如果无法解析用户ID，则返回null
+                return null;
+            }
+        } else {
+            // 如果token格式不正确，则返回null
+            return null;
+        }
+    }
+
 }
