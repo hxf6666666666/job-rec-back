@@ -56,8 +56,8 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public List<Resume> findResumeAll(String fileName, Integer resumeStatus) {
-        return resumeRepository.findByFileNameContainingAndResumeStatus(fileName, resumeStatus);
+    public List<Resume> findResumeAll(String fileName, Integer resumeStatus, Long userId) {
+        return resumeRepository.findByFileNameContainingAndResumeStatus(fileName, resumeStatus, userId);
     }
 
     @Override

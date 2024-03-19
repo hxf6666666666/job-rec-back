@@ -11,10 +11,11 @@ import java.util.List;
 
 @Repository
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
-    @Query("SELECT r FROM Resume r WHERE (:fileName IS NULL OR r.fileName LIKE %:fileName%) AND (:resumeStatus IS NULL OR r.resumeStatus = :resumeStatus)  order by r.uploadTime desc")
+    @Query("SELECT r FROM Resume r WHERE (:fileName IS NULL OR r.fileName LIKE %:fileName%) AND (:resumeStatus IS NULL OR r.resumeStatus = :resumeStatus) AND (r.userId = :userId) order by r.uploadTime desc")
     List<Resume> findByFileNameContainingAndResumeStatus(
            @Param("fileName") String fileName,
-           @Param("resumeStatus") Integer resumeStatus);
+           @Param("resumeStatus") Integer resumeStatus,
+           @Param("userId") Long userId);
 
     Resume findResumeById(Long id);
 

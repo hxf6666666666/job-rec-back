@@ -45,8 +45,23 @@ public class ResumeController {
 
     @GetMapping("/all")
     public List<Resume> getAllResume(@RequestParam(required = false) String fileName,
-                                     @RequestParam(required = false) Integer resumeStatus) {
-        return  resumeService.findResumeAll(fileName, resumeStatus);
+                                     @RequestParam(required = false) Integer resumeStatus,
+                                     @RequestHeader("Authorization") String authorizationHeader) {
+
+        // 检查Authorization头部参数是否存在并且以Bearer开头
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7); // 获取Token
+            // 根据Token查询用户信息
+            User user = userService.findUserByToken(token);
+            if (user != null) {
+                return  resumeService.findResumeAll(fileName, resumeStatus, user.getId());
+            } else {
+                return null;
+            }
+        } else {
+            // 如果Authorization头部参数不存在或者格式不正确
+            return null;
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -19,4 +19,5 @@ spring:
       max-request-size: 100MB
 resume:
   upload:
+    # 简历保存路径
     directory: D:/resume/

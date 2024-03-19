@@ -8,7 +8,7 @@ import java.util.List;
 public interface ResumeService {
     String uploadResume(MultipartFile file, Long userId);
 
-    List<Resume> findResumeAll(String fileName, Integer resumeStatus);
+    List<Resume> findResumeAll(String fileName, Integer resumeStatus, Long userId);
 
     void  deleteResume(Long resumeId);
 }
