@@ -24,22 +24,9 @@ public class Industry {
     @Column(name = "skillTag", nullable = false, length = 512)
     private String skillTag;
 
-    @Column(name = "languageTag", length = 512)
-    private String languageTag;
-
     @Column(name = "competencyTag", length = 512)
     private String competencyTag;
 
     @Column(name = "MajorTag", length = 512)
     private String majorTag;
-
-    @Column(name = "createTime", nullable = false)
-    private Instant createTime;
-
-    @Column(name = "updateTime", nullable = false)
-    private Instant updateTime;
-
-    @Column(name = "isDelete", nullable = false)
-    private Byte isDelete;
-
 }

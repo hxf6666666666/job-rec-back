@@ -24,14 +24,4 @@ public class City {
 
     @Column(name = "postalCode", nullable = false, length = 20)
     private String postalCode;
-
-    @Column(name = "createTime", nullable = false)
-    private Instant createTime;
-
-    @Column(name = "updateTime", nullable = false)
-    private Instant updateTime;
-
-    @Column(name = "isDeleted", nullable = false)
-    private Byte isDeleted;
-
 }
