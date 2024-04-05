@@ -25,7 +25,7 @@ create table if not exists recruitment
     userId          bigint                                  not null comment '岗位发布者id',
     companyName     VARCHAR(512)                            not null comment '公司名称',
     industryId      bigint                                  not null comment '行业id',
-    jobDescription  text                                    not null comment '职位详情',
+    jobDescription  text                                    null comment '职位详情',
     educationType   tinyint                                 null comment '最低学历要求',
     jobPersonality  varchar(1024) default '[]'              not null comment '素养关键词JSON',
     jobSkills       varchar(1024) default '[]'              null comment '职业技术栈JSON',

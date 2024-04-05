@@ -1,5 +1,7 @@
 package org.example.jobrecback.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 /*
  * 简历内容（求职者）表
@@ -20,6 +23,7 @@ import java.time.LocalDate;
 public class Employee {
     // 求职者主键
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -88,7 +92,26 @@ public class Employee {
     @Column(name = "workExperienceYear", nullable = false)
     private Integer workExperienceYear;
 
+    // 发布时间
+    @Column(name = "createTime", nullable = false)
+    private Instant createTime;
+
+    // 更新时间
+    @Column(name = "updateTime", nullable = false)
+    private Instant updateTime;
+
     // 教育经历
+    @JsonIgnoreProperties(value = {"educationExperiences"})
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<EducationExperience> educationExperiences;
+
+    public List<EducationExperience> getEducationExperiences() {
+        return educationExperiences;
+    }
+
+    public void setEducationExperiences(List<EducationExperience> educationExperiences) {
+        this.educationExperiences = educationExperiences;
+    }
 
 //    @Column(name = "education", nullable = false)
 //    private Integer education;

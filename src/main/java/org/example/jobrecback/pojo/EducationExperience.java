@@ -1,5 +1,7 @@
 package org.example.jobrecback.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,8 +18,12 @@ public class EducationExperience {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "employeeId", nullable = false)
-    private Long employeeId;
+//    @Column(name = "employeeId", nullable = false)
+//    private Long employeeId;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
     @Column(name = "schoolName", nullable = false, length = 256)
     private String schoolName;
@@ -44,7 +50,7 @@ public class EducationExperience {
     @Column(name = "updateTime", nullable = false)
     private Instant updateTime;
 
-    @Column(name = "isDelete", nullable = false)
+    @Column(name = "isDelete")
     private Byte isDelete;
 
 }

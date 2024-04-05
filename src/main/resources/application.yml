@@ -1,10 +1,11 @@
 server:
-  port: 8080
+  port: 8010
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/career?serverTimezone=GMT%2B8&characterEncoding=utf-8
     username: root
-    password: hxf.20210611
+#    password: hxf.20210611
+    password: Wa2497686061
   jpa:
     show-sql: true
     open-in-view: false
@@ -17,6 +18,24 @@ spring:
       max-file-size: 100MB
       # 最大支持请求大小
       max-request-size: 100MB
+#  data:
+#    redis:
+#      cluster:
+#        nodes:
+#          - 192.168.252.128:7001
+#          - 192.168.252.128:7002
+#          - 192.168.252.128:7003
+#          - 192.168.252.128:8001
+#          - 192.168.252.128:8002
+#          - 192.168.252.128:8003
+#      host: 127.0.0.1
+#      port: 6379
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: 1000ms
 resume:
   upload:
     # 简历保存路径

@@ -20,6 +20,7 @@ import java.time.Instant;
 public class Recruitment {
     // 职位主键
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -96,4 +97,32 @@ public class Recruitment {
     // 更新时间
     @Column(name = "updateTime", nullable = false)
     private Instant updateTime;
+
+    public Recruitment() {
+    }
+
+    public Recruitment(Long id, String jobName, Long userId, String companyName, Long industryId, String jobDescription,
+                       Byte educationType, Byte workTimeType, String jobPersonality, String jobSkills, Integer jobType,
+                       String jobAddress, Integer salaryUpper, Integer salaryLower, Byte salaryUnit, String link,
+                       Long cityId, Instant createTime, Instant updateTime) {
+        this.id = id;
+        this.jobName = jobName;
+        this.userId = userId;
+        this.companyName = companyName;
+        this.industryId = industryId;
+        this.jobDescription = jobDescription;
+        this.educationType = educationType;
+        this.workTimeType = workTimeType;
+        this.jobPersonality = jobPersonality;
+        this.jobSkills = jobSkills;
+        this.jobType = jobType;
+        this.jobAddress = jobAddress;
+        this.salaryUpper = salaryUpper;
+        this.salaryLower = salaryLower;
+        this.salaryUnit = salaryUnit;
+        this.link = link;
+        this.cityId = cityId;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
 }
