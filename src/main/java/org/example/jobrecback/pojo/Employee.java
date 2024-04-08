@@ -48,8 +48,8 @@ public class Employee {
     private LocalDate dateOfBirth;
 
     // 城市id
-    @Column(name = "cityId", nullable = false)
-    private Long cityId;
+    @Column(name = "city", nullable = false)
+    private String city;
 
     //详细地址
     @Column(name = "address", nullable = false, length = 256)

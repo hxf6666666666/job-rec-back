@@ -24,8 +24,8 @@ public class EmployeeWishCareer {
     @Column(name = "industryId", nullable = false)
     private Long industryId;
 
-    @Column(name = "cityId", nullable = false)
-    private Long cityId;
+    @Column(name = "city", nullable = false)
+    private String city;
 
     @Column(name = "jobType", nullable = false)
     private Integer jobType;

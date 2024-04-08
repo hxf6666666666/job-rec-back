@@ -12,7 +12,8 @@ import java.util.List;
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, JpaSpecificationExecutor<Recruitment> {
 
     List<Recruitment> findByUserId(Long userId);
-    List<Recruitment> findAllByJobNameContainingAndIndustryId(@Param("jobName")String jobName, @Param("industryId")Long industryId);
+
+    List<Recruitment> findAllByJobNameContainingAndIndustryIdOrderByCreateTimeDesc(@Param("jobName")String jobName, @Param("industryId")Long industryId);
 
     List<Recruitment> findAllByIndustryId(Long industryId);
 

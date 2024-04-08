@@ -33,7 +33,7 @@ public class Recruitment {
     private Long userId;
 
     //公司名称
-    @Column(name = "companyName", nullable = false, length = 512)
+    @Column(name = "companyName", length = 512)
     private String companyName;
 
     //职位大类id
@@ -41,8 +41,7 @@ public class Recruitment {
     private Long industryId;
 
     //职位描述
-    @Lob
-    @Column(name = "jobDescription", nullable = false)
+    @Column(name = "jobDescription", length = 1024, nullable = false, columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String jobDescription;
 
     //最低学历要求，编号（0:不限，1：大专，2：本科，3：硕士，4：博士）
@@ -54,7 +53,7 @@ public class Recruitment {
     private Byte workTimeType;
 
     // 职位所需素养：前端用标签显示，数量不定
-    @Column(name = "jobPersonality", nullable = false, length = 1024)
+    @Column(name = "jobPersonality", length = 1024)
     private String jobPersonality;
 
     // 职位所需技能：前端用标签显示，数量不定
@@ -66,7 +65,7 @@ public class Recruitment {
     private Integer jobType;
 
     //职位详细地址
-    @Column(name = "jobAddress", nullable = false, length = 256)
+    @Column(name = "jobAddress",length = 256)
     private String jobAddress;
 
     //薪水上限
@@ -86,9 +85,9 @@ public class Recruitment {
     @Column(name = "link")
     private String link;
 
-    // 城市id
-    @Column(name = "cityId", nullable = false)
-    private Long cityId;
+    // 城市
+    @Column(name = "city")
+    private String city;
 
     // 发布时间
     @Column(name = "createTime", nullable = false)
@@ -99,12 +98,13 @@ public class Recruitment {
     private Instant updateTime;
 
     public Recruitment() {
+        this.salaryUnit = 12;
     }
 
     public Recruitment(Long id, String jobName, Long userId, String companyName, Long industryId, String jobDescription,
                        Byte educationType, Byte workTimeType, String jobPersonality, String jobSkills, Integer jobType,
                        String jobAddress, Integer salaryUpper, Integer salaryLower, Byte salaryUnit, String link,
-                       Long cityId, Instant createTime, Instant updateTime) {
+                       String city, Instant createTime, Instant updateTime) {
         this.id = id;
         this.jobName = jobName;
         this.userId = userId;
@@ -121,7 +121,7 @@ public class Recruitment {
         this.salaryLower = salaryLower;
         this.salaryUnit = salaryUnit;
         this.link = link;
-        this.cityId = cityId;
+        this.city = city;
         this.createTime = createTime;
         this.updateTime = updateTime;
     }

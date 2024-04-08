@@ -1,18 +1,24 @@
 package org.example.jobrecback.service.impl;
 
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.common.Term;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import jakarta.annotation.Resource;
 import jakarta.persistence.criteria.Predicate;
 import org.example.jobrecback.dao.RecruitmentRepository;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.service.RecruitmentService;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class RecruitmentServiceImpl implements RecruitmentService {
@@ -36,7 +42,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     public List<Recruitment> findAllByJobNameContainingAndIndustryId(String jobName, Long industryId) {
-        return recruitmentRepository.findAllByJobNameContainingAndIndustryId(jobName, industryId);
+        return recruitmentRepository.findAllByJobNameContainingAndIndustryIdOrderByCreateTimeDesc(jobName, industryId);
     }
 
     @Override
@@ -55,21 +61,20 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    public List<Recruitment> search(String name, Integer jobType, Long cityId, Long industryId,
+    public List<Recruitment> search(String name, Integer jobType, String city, Long industryId,
                                     Byte workTimeType, Byte salary, Byte educationType) {
         Specification<Recruitment> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (StringUtils.hasText(name)) {
                 predicates.add(cb.or(
-                        cb.like(root.get("jobName"), "%" + name + "%"),
-                        cb.like(root.get("companyName"), "%" + name + "%")
+                        cb.like(root.get("jobName"), "%" + name + "%")
                 ));
             }
             if (jobType != null) {
                 predicates.add(cb.equal(root.get("jobType"), jobType));
             }
-            if (cityId != null) {
-                predicates.add(cb.equal(root.get("cityId"), cityId));
+            if (city != null) {
+                predicates.add(cb.equal(root.get("city"), city));
             }
             if (industryId != null) {
                 predicates.add(cb.equal(root.get("industryId"), industryId));
@@ -121,7 +126,9 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        return recruitmentRepository.findAll(spec);
+        // 创建排序对象，按照 createTime 字段倒序排序
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        return recruitmentRepository.findAll(spec, sort);
     }
 
     @Override
@@ -146,7 +153,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             existingRecruitment.setIndustryId(recruitment.getIndustryId());
             existingRecruitment.setSalaryLower(recruitment.getSalaryLower());
             existingRecruitment.setSalaryUpper(recruitment.getSalaryUpper());
-            existingRecruitment.setCityId(recruitment.getCityId());
+            existingRecruitment.setCity(recruitment.getCity());
             existingRecruitment.setEducationType(recruitment.getEducationType());
             existingRecruitment.setJobAddress(recruitment.getJobAddress());
             existingRecruitment.setJobDescription(recruitment.getJobDescription());
@@ -163,6 +170,49 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             // 如果要更新的招聘信息对象不存在，则抛出异常或者进行其他处理
             throw new RuntimeException("Recruitment with id " + recruitment.getId() + " not found");
         }
+    }
+
+    @Override
+    public String extractEntitiesFromDescription(String description, String dictPath) throws IOException {
+        List<String> dict = loadDictionary(dictPath);
+        System.out.println(dict);
+        List<String> words = convertTermsToStrings(HanLP.segment(description));
+
+        System.out.println(words);
+
+        List<String> entities = new ArrayList<>();
+
+        for (String word : words) {
+            if (dict.contains(word)) {
+                entities.add(word);
+            }
+        }
+
+        return String.join(",", entities);
+    }
+
+    private List<String> loadDictionary(String dictPath) throws IOException {
+        List<String> dict = new ArrayList<>();
+        try (CSVReader reader = new CSVReader(new FileReader(dictPath))) {
+            String[] line;
+            while (true) {
+                try {
+                    if ((line = reader.readNext()) == null) break;
+                } catch (IOException | CsvValidationException e) {
+                    throw new RuntimeException(e);
+                }
+                dict.add(line[0]); // 假设 CSV 文件中每行只有一个词，存储在第一个元素中
+            }
+        }
+        return dict;
+    }
+
+    public static List<String> convertTermsToStrings(List<Term> terms) {
+        Set<String> wordSet = new HashSet<>(); // 使用 HashSet 去重
+        for (Term term : terms) {
+            wordSet.add(term.word);
+        }
+        return new ArrayList<>(wordSet); // 将 Set 转换为 List
     }
 
     @Override

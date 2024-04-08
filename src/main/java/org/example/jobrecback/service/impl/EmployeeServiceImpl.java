@@ -58,7 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee1.setEmail(employee.getEmail());
                 employee1.setGender(employee.getGender());
                 employee1.setAwardTag(employee.getAwardTag());
-                employee1.setCityId(employee.getCityId());
+                employee1.setCity(employee.getCity());
                 employee1.setWechat(employee.getWechat());
                 employee1.setDateOfBirth(employee.getDateOfBirth());
                 employee1.setRealName(employee.getRealName());

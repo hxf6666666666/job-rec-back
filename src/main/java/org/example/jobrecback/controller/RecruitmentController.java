@@ -18,6 +18,8 @@ import java.util.Map;
 public class RecruitmentController {
     @Resource
     private RecruitmentService recruitmentService;
+    String dictPath1 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\JN.txt";
+    String dictPath2 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
 
     // 发布招聘岗位
     @PostMapping("/post")
@@ -28,6 +30,10 @@ public class RecruitmentController {
         recruitment.setCreateTime(now);
         recruitment.setUpdateTime(now);
         try {
+            String JNKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath1);
+            String PSKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath2);
+            recruitment.setJobSkills(JNKeywords);
+            recruitment.setJobPersonality(PSKeywords);
             // 保存招聘信息到数据库
             Recruitment savedRecruitment = recruitmentService.save(recruitment);
             response.put("status", "success");
@@ -49,6 +55,7 @@ public class RecruitmentController {
         System.out.println("userId:" + userId + " name:" + name + " industryId:" + industryId);
         return ResponseUtils.response(recruitmentService::getMyPosts, userId, name, industryId);
     }
+
     //查看所有职位
     @GetMapping("/getAll")
     public ResponseEntity<List<Recruitment>> getAll() {
@@ -57,16 +64,16 @@ public class RecruitmentController {
     // 根据职位、公司名称，求职类型，城市和区域，职位类型，工作经验，薪资待遇，学历要求搜索职位
     @GetMapping("/search")
     public ResponseEntity<List<Recruitment>> searchRecruitment(
-            @RequestParam(name = "name",required = false) String name,
+            @RequestParam(name = "jobName",required = false) String name,
             @RequestParam(name = "jobType",required = false) Integer jobType,
-            @RequestParam(name = "cityId",required = false) Long cityId,
+            @RequestParam(name = "city",required = false) String city,
             @RequestParam(name = "industryId",required = false) Long industryId,
             @RequestParam(name = "workTimeType",required = false) Byte workTimeType,
             @RequestParam(name = "salary",required = false) Byte salary,
             @RequestParam(name = "educationType",required = false) Byte educationType
     ) {
-        System.out.println("selectPosts: "+"name:"+name+" jobType:"+jobType+" cityId:"+cityId+" industryId:"+industryId+" workTimeType:"+workTimeType+" salary:"+salary+" educationType:"+educationType);
-        return ResponseUtils.response(recruitmentService::search,name,jobType,cityId,industryId,workTimeType,salary,educationType);
+        System.out.println("selectPosts: "+"name:"+name+" jobType:"+jobType+" city:"+city+" industryId:"+industryId+" workTimeType:"+workTimeType+" salary:"+salary+" educationType:"+educationType);
+        return ResponseUtils.response(recruitmentService::search,name,jobType,city,industryId,workTimeType,salary,educationType);
     }
     //根据职位id返回职位的所有信息
     @GetMapping("/getByID/{id}")
@@ -84,7 +91,4 @@ public class RecruitmentController {
     public ResponseEntity<String> update(@RequestBody Recruitment recruitment){
         return ResponseUtils.response(recruitmentService::update,recruitment);
     }
-
-
-
 }

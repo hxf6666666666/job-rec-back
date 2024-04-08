@@ -2,6 +2,7 @@ package org.example.jobrecback.service;
 
 import org.example.jobrecback.pojo.Recruitment;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface RecruitmentService {
@@ -20,9 +21,12 @@ public interface RecruitmentService {
 
     List<Recruitment> getMyPosts(Long userId, String name, Long industryId);
 
-    List<Recruitment> search(String name, Integer jobType, Long cityId, Long industryId, Byte workTimeType, Byte salary, Byte educationType);
+    List<Recruitment> search(String name, Integer jobType, String city, Long industryId, Byte workTimeType, Byte salary, Byte educationType);
 
     void delete(Long id);
 
     void update(Recruitment recruitment);
+
+    // 提取关键词
+    String extractEntitiesFromDescription(String description, String dictPath) throws IOException;
 }

@@ -1,5 +1,7 @@
 package org.example.jobrecback;
 
+import org.example.jobrecback.service.RecruitmentService;
+import org.example.jobrecback.service.impl.RecruitmentServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.xm.Similarity;
@@ -7,6 +9,8 @@ import org.xm.similarity.text.CosineSimilarity;
 import org.xm.similarity.text.EditDistanceSimilarity;
 import org.xm.similarity.text.TextSimilarity;
 import org.xm.tendency.word.HownetWordTendency;
+
+import java.io.IOException;
 
 @SpringBootTest
 class JobRecBackApplicationTests {
@@ -35,6 +39,22 @@ class JobRecBackApplicationTests {
         double score2 = cosSimilarity.getSimilarity(text1, text3);
         System.out.println("cos相似度分值：" + score1);
         System.out.println("cos相似度分值：" + score2);
+    }
+
+
+    @Test
+    void test2(){
+        String description = "适合有点基础、技术有待提高且没有项目经验的新人条件：1、思维逻辑清晰，有较好的理解和沟通协助能力。2、积极上进有责任心，有毅力，能吃苦耐劳。3、学习能力强，能快速掌握新技术，对新技术保持关注和热情。4、熟悉HTML、CSS、javaScript等基础知识优先；5、接受0基础但是努力、认真的新人。\n";
+        String dictPath = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
+
+        RecruitmentService service = new RecruitmentServiceImpl();
+
+        try {
+            String entities = service.extractEntitiesFromDescription(description, dictPath);
+            System.out.println("提取的关键词为：" + entities);
+        } catch (IOException e) {
+            System.err.println("处理出错：" + e.getMessage());
+        }
     }
 
 
