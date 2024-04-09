@@ -50,7 +50,7 @@ class JobRecBackApplicationTests {
         RecruitmentService service = new RecruitmentServiceImpl();
 
         try {
-            String entities = service.extractEntitiesFromDescription(description, dictPath);
+            String entities = service.extractEntitiesFromDescription(description, dictPath,2);
             System.out.println("提取的关键词为：" + entities);
         } catch (IOException e) {
             System.err.println("处理出错：" + e.getMessage());

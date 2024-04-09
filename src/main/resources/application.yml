@@ -38,5 +38,12 @@ spring:
 #          max-wait: 1000ms
 resume:
   upload:
-    # 简历保存路径
     directory: D:/resume/
+
+xf:
+  config:
+    hostUrl: https://spark-api.xf-yun.com/v3.5/chat
+    appId: 5483859a
+    apiSecret: YjAwMjljMzQ0ZjY1ODJkYTMxMWViOTA5
+    apiKey: 3687edcd553f58ab30970f74ccc613f8
+    maxResponseTime: 30

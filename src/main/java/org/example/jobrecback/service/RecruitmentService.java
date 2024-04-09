@@ -28,5 +28,5 @@ public interface RecruitmentService {
     void update(Recruitment recruitment);
 
     // 提取关键词
-    String extractEntitiesFromDescription(String description, String dictPath) throws IOException;
+    String extractEntitiesFromDescription(String description, String dictPath, int flag) throws IOException;
 }

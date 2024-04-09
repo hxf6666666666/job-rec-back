@@ -30,8 +30,8 @@ public class RecruitmentController {
         recruitment.setCreateTime(now);
         recruitment.setUpdateTime(now);
         try {
-            String JNKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath1);
-            String PSKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath2);
+            String JNKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath1,1);
+            String PSKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath2,2);
             recruitment.setJobSkills(JNKeywords);
             recruitment.setJobPersonality(PSKeywords);
             // 保存招聘信息到数据库

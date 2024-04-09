@@ -136,44 +136,77 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         recruitmentRepository.deleteById(id);
     }
 
+    /**
+     * 更新招聘信息
+     * @param updatedRecruitment 更新后的招聘信息对象
+     * @throws RuntimeException 如果指定 id 的招聘信息不存在，则抛出异常
+     */
     @Override
-    public void update(Recruitment recruitment) {
-        // 首先从数据库中获取要更新的招聘信息对象
-        Optional<Recruitment> existingRecruitmentOptional = recruitmentRepository.findById(recruitment.getId());
+    public void update(Recruitment updatedRecruitment) {
+        Optional<Recruitment> existingRecruitmentOptional = recruitmentRepository.findById(updatedRecruitment.getId());
 
-        // 检查是否存在要更新的招聘信息对象
-        if(existingRecruitmentOptional.isPresent()) {
-            // 如果存在，则获取数据库中的招聘信息对象
+        if (existingRecruitmentOptional.isPresent()) {
             Recruitment existingRecruitment = existingRecruitmentOptional.get();
 
-            // 更新数据库中的招聘信息对象的属性值
-            existingRecruitment.setUserId(recruitment.getUserId());
-            existingRecruitment.setJobName(recruitment.getJobName());
-            existingRecruitment.setCompanyName(recruitment.getCompanyName());
-            existingRecruitment.setIndustryId(recruitment.getIndustryId());
-            existingRecruitment.setSalaryLower(recruitment.getSalaryLower());
-            existingRecruitment.setSalaryUpper(recruitment.getSalaryUpper());
-            existingRecruitment.setCity(recruitment.getCity());
-            existingRecruitment.setEducationType(recruitment.getEducationType());
-            existingRecruitment.setJobAddress(recruitment.getJobAddress());
-            existingRecruitment.setJobDescription(recruitment.getJobDescription());
-            existingRecruitment.setJobPersonality(recruitment.getJobPersonality());
-            existingRecruitment.setJobSkills(recruitment.getJobSkills());
-            existingRecruitment.setJobType(recruitment.getJobType());
-            existingRecruitment.setLink(recruitment.getLink());
-            existingRecruitment.setSalaryUnit(recruitment.getSalaryUnit());
-            existingRecruitment.setWorkTimeType(recruitment.getWorkTimeType());
-            existingRecruitment.setUpdateTime(Instant.now());
+            // 更新数据库中的招聘信息对象的属性值，避免空指针异常和不必要的更新
+            if (!StringUtils.isEmpty(updatedRecruitment.getUserId())) {
+                existingRecruitment.setUserId(updatedRecruitment.getUserId());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getJobName())) {
+                existingRecruitment.setJobName(updatedRecruitment.getJobName());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getCompanyName())) {
+                existingRecruitment.setCompanyName(updatedRecruitment.getCompanyName());
+            }
+            if (updatedRecruitment.getIndustryId() != null) {
+                existingRecruitment.setIndustryId(updatedRecruitment.getIndustryId());
+            }
+            if (updatedRecruitment.getSalaryLower() != null) {
+                existingRecruitment.setSalaryLower(updatedRecruitment.getSalaryLower());
+            }
+            if (updatedRecruitment.getSalaryUpper() != null) {
+                existingRecruitment.setSalaryUpper(updatedRecruitment.getSalaryUpper());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getCity())) {
+                existingRecruitment.setCity(updatedRecruitment.getCity());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getEducationType())) {
+                existingRecruitment.setEducationType(updatedRecruitment.getEducationType());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getJobAddress())) {
+                existingRecruitment.setJobAddress(updatedRecruitment.getJobAddress());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getJobDescription())) {
+                existingRecruitment.setJobDescription(updatedRecruitment.getJobDescription());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getJobPersonality())) {
+                existingRecruitment.setJobPersonality(updatedRecruitment.getJobPersonality());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getJobSkills())) {
+                existingRecruitment.setJobSkills(updatedRecruitment.getJobSkills());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getJobType())) {
+                existingRecruitment.setJobType(updatedRecruitment.getJobType());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getLink())) {
+                existingRecruitment.setLink(updatedRecruitment.getLink());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getSalaryUnit())) {
+                existingRecruitment.setSalaryUnit(updatedRecruitment.getSalaryUnit());
+            }
+            if (!StringUtils.isEmpty(updatedRecruitment.getWorkTimeType())) {
+                existingRecruitment.setWorkTimeType(updatedRecruitment.getWorkTimeType());
+            }
+
             // 保存更新后的招聘信息对象到数据库中
             recruitmentRepository.save(existingRecruitment);
         } else {
-            // 如果要更新的招聘信息对象不存在，则抛出异常或者进行其他处理
-            throw new RuntimeException("Recruitment with id " + recruitment.getId() + " not found");
+            throw new RuntimeException("Recruitment with id " + updatedRecruitment.getId() + " not found");
         }
     }
 
     @Override
-    public String extractEntitiesFromDescription(String description, String dictPath) throws IOException {
+    public String extractEntitiesFromDescription(String description, String dictPath, int flag) throws IOException {
         List<String> dict = loadDictionary(dictPath);
         System.out.println(dict);
         List<String> words = convertTermsToStrings(HanLP.segment(description));
@@ -183,7 +216,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         List<String> entities = new ArrayList<>();
 
         for (String word : words) {
-            if (dict.contains(word)) {
+            if (word.matches("^[a-zA-Z]+$")&&flag==1||dict.contains(word)) {
                 entities.add(word);
             }
         }
