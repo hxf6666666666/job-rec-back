@@ -45,7 +45,7 @@ public class ResponseUtils {
             consumer.accept(t);
             return new ResponseEntity<>("操作成功", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("操作失败", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("操作失败:"+e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     public static <T, R> R response2(Function<T,R> function,T t){

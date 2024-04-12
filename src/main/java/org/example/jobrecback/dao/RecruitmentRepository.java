@@ -19,4 +19,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
 
     List<Recruitment> findAllByJobNameContaining(String name);
 
+    List<Recruitment> findByIdIn(List<Long> recruitmentIds);
 }

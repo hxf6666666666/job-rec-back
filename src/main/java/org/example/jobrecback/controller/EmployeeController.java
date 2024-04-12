@@ -38,5 +38,4 @@ public class EmployeeController {
     public ResponseEntity<String> delete(@PathVariable("id") Long id){
         return ResponseUtils.response(employeeService::delete,id);
     }
-
 }

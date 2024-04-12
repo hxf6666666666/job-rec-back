@@ -86,39 +86,33 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             //salary =0 1-3K =1 3-5K =2 5-10K =3 10-20K =4 20-50K =5 50K+
             if (salary != null) {
                 switch (salary) {
-                    case 0: // 1-3K
-                        predicates.add(cb.and(
-                                cb.greaterThanOrEqualTo(root.get("salaryUpper"), 1),
-                                cb.lessThanOrEqualTo(root.get("salaryLower"), 3)
-                        ));
-                        break;
-                    case 1: // 3-5K
-                        predicates.add(cb.and(
-                                cb.greaterThanOrEqualTo(root.get("salaryUpper"), 3),
-                                cb.lessThanOrEqualTo(root.get("salaryLower"), 5)
-                        ));
-                        break;
-                    case 2: // 5-10K
-                        predicates.add(cb.and(
-                                cb.greaterThanOrEqualTo(root.get("salaryUpper"), 5),
-                                cb.lessThanOrEqualTo(root.get("salaryLower"), 10)
-                        ));
-                        break;
-                    case 3: // 10-20K
-                        predicates.add(cb.and(
-                                cb.greaterThanOrEqualTo(root.get("salaryUpper"), 10),
-                                cb.lessThanOrEqualTo(root.get("salaryLower"), 20)
-                        ));
-                        break;
-                    case 4: // 20-50K
-                        predicates.add(cb.and(
-                                cb.greaterThanOrEqualTo(root.get("salaryUpper"), 20),
-                                cb.lessThanOrEqualTo(root.get("salaryLower"), 50)
-                        ));
-                        break;
-                    case 5: // 50K+
-                        predicates.add(cb.greaterThanOrEqualTo(root.get("salaryUpper"), 50));
-                        break;
+                    case 0 -> // 1-3K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 1),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 3)
+                            ));
+                    case 1 -> // 3-5K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 3),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 5)
+                            ));
+                    case 2 -> // 5-10K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 5),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 10)
+                            ));
+                    case 3 -> // 10-20K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 10),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 20)
+                            ));
+                    case 4 -> // 20-50K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 20),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 50)
+                            ));
+                    case 5 -> // 50K+
+                            predicates.add(cb.greaterThanOrEqualTo(root.get("salaryUpper"), 50));
                 }
             }
             if (educationType != null) {

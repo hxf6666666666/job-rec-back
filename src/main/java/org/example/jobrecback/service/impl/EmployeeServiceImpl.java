@@ -1,7 +1,6 @@
 package org.example.jobrecback.service.impl;
 
 import jakarta.annotation.Resource;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.example.jobrecback.dao.EducationExperienceRepository;
 import org.example.jobrecback.dao.EmployeeRepository;
 import org.example.jobrecback.pojo.EducationExperience;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

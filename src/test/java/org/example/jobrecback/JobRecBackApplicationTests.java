@@ -45,7 +45,7 @@ class JobRecBackApplicationTests {
     @Test
     void test2(){
         String description = "适合有点基础、技术有待提高且没有项目经验的新人条件：1、思维逻辑清晰，有较好的理解和沟通协助能力。2、积极上进有责任心，有毅力，能吃苦耐劳。3、学习能力强，能快速掌握新技术，对新技术保持关注和热情。4、熟悉HTML、CSS、javaScript等基础知识优先；5、接受0基础但是努力、认真的新人。\n";
-        String dictPath = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
+        String dictPath = "D:\\idea2022破解版\\IDEA项目\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
 
         RecruitmentService service = new RecruitmentServiceImpl();
 

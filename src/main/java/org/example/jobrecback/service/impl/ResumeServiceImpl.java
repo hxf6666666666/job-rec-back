@@ -5,7 +5,6 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.example.jobrecback.dao.EmployeeRepository;
 import org.example.jobrecback.dao.ResumeRepository;
-import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.Resume;
 import org.example.jobrecback.service.ResumeService;
 import org.springframework.beans.factory.annotation.Value;
