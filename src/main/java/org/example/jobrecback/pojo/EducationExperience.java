@@ -22,35 +22,33 @@ public class EducationExperience {
 //    private Long employeeId;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @Column(name = "schoolName", nullable = false, length = 256)
+    @Column(name = "schoolName")
     private String schoolName;
 
-    @Column(name = "educationType", nullable = false)
+    @Column(name = "schoolType")
+    private String schoolType;
+
+    @Column(name = "educationType")
     private Byte educationType;
 
-    @Column(name = "beginYear", nullable = false)
+    @Column(name = "beginYear")
     private Integer beginYear;
 
-    @Column(name = "endYear", nullable = false)
+    @Column(name = "endYear")
     private Integer endYear;
 
-    @Column(name = "majorName", nullable = false, length = 256)
+    @Column(name = "majorName")
     private String majorName;
 
-    @Lob
     @Column(name = "activity")
     private String activity;
 
-    @Column(name = "createTime", nullable = false)
-    private Instant createTime;
+    @Column(name = "gpa")
+    private String gpa;
 
-    @Column(name = "updateTime", nullable = false)
-    private Instant updateTime;
-
-    @Column(name = "isDelete")
-    private Byte isDelete;
-
+    @Column(name = "ranking")
+    private String ranking;
 }

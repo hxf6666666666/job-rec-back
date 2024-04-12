@@ -1,6 +1,7 @@
 package org.example.jobrecback.controller;
 
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.Resume;
 import org.example.jobrecback.service.EmployeeService;
@@ -41,11 +42,15 @@ public class ResumeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
     //获取全部简历
     @GetMapping("/getAll")
     public  ResponseEntity<List<Resume>> getAll(){
         return ResponseUtils.response(resumeService::findAll);
     }
+
     //上传兼更新
     @PostMapping("/upload/{employeeId}")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,@PathVariable("employeeId") Long employeeId){
@@ -57,6 +62,7 @@ public class ResumeController {
     public ResponseEntity<String> delete(@PathVariable Long id){
         return ResponseUtils.response(resumeService::delete,id);
     }
+
     //按条件搜索
     @GetMapping("/search")
     public ResponseEntity<List<Resume>> searchResume(

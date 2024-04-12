@@ -1,11 +1,14 @@
 package org.example.jobrecback.service.impl;
 
+import com.qingstor.sdk.config.EnvContext;
+import com.qingstor.sdk.exception.QSException;
+import com.qingstor.sdk.service.Bucket;
 import jakarta.annotation.Resource;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
+import org.example.jobrecback.config.QingStorConfig;
 import org.example.jobrecback.dao.EmployeeRepository;
 import org.example.jobrecback.dao.ResumeRepository;
-import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.Resume;
 import org.example.jobrecback.service.ResumeService;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -27,8 +31,9 @@ public class ResumeServiceImpl implements ResumeService {
     private ResumeRepository resumeRepository;
     @Resource
     private EmployeeRepository employeeRepository;
-    @Value("${resume.upload.directory}")
-    private String uploadDirectory;
+    @Resource
+    private QingStorConfig qingStorConfig;
+
     @Override
     public Resume findByEmployeeId(Long employeeId) {
         return resumeRepository.findByEmployeeId(employeeId);
@@ -47,32 +52,34 @@ public class ResumeServiceImpl implements ResumeService {
         }
 
         // 检查文件类型
-        String[] allowedFileTypes = {"pdf", "doc", "docx"};
+        String[] allowedFileTypes = {"pdf", "doc", "docx", "png", "jpg", "txt"};
         String fileExtension = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         if (!isValidFileType(fileExtension, allowedFileTypes)) {
             return "不支持上传的简历文件类型";
         }
-        String fileExtensionLowerCase = fileExtension.toLowerCase();
-        String filePath = employeeId + "." + fileExtensionLowerCase;
+
+        String filePath = file.getOriginalFilename();
+
 
         // 检查数据库中是否存在该用户的简历
         Optional<Resume> existingResumeOptional = Optional.ofNullable(resumeRepository.findByEmployeeId(employeeId));
         if (existingResumeOptional.isPresent()) {
             // 如果存在，先删除旧简历文件
             Resume existingResume = existingResumeOptional.get();
-            String existingFilePath = existingResume.getFilePath();
-            File existingFile = new File(existingFilePath);
-            if (existingFile.exists()) {
-                boolean deleteResult = existingFile.delete();
-                if (!deleteResult) {
-                    log.error("删除旧简历文件失败: " + existingFilePath);
-                }
+            EnvContext env = new EnvContext(qingStorConfig.getAccessKeyId(),qingStorConfig.getSecretAccessKey());
+            String zoneKey = "pek3b";
+            String bucketName = "hexinfeng";
+            Bucket bucket = new Bucket(env, zoneKey, bucketName);
+            try {
+                Bucket.DeleteObjectOutput output = bucket.deleteObject(existingResume.getFilePath(), null);
+            } catch (QSException e) {
+                throw new RuntimeException(e);
             }
             // 更新数据库中的简历信息
             existingResume.setFileName(file.getOriginalFilename());
             existingResume.setFileSize(file.getSize());
             existingResume.setUploadTime(Instant.now());
-            existingResume.setFilePath(uploadDirectory + filePath);
+            existingResume.setFilePath("resume/" + file.getOriginalFilename());
             resumeRepository.save(existingResume);
         } else {
             // 如果不存在，保存新的简历信息到数据库
@@ -81,43 +88,52 @@ public class ResumeServiceImpl implements ResumeService {
             resume.setFileName(file.getOriginalFilename());
             resume.setFileSize(file.getSize());
             resume.setUploadTime(Instant.now());
-            resume.setFilePath(uploadDirectory + filePath);
+            resume.setFilePath("resume/" + filePath);
             resumeRepository.save(resume);
         }
-
-        // 保存简历文件到存储文件夹
-        File dest = new File(uploadDirectory + filePath);
-        if (!dest.getParentFile().exists()) {
-            boolean mkdirsResult = dest.getParentFile().mkdirs();
-            if (!mkdirsResult) {
-                log.error("创建目录失败: " + dest.getParentFile().getAbsolutePath());
-            }
+        EnvContext env = new EnvContext(qingStorConfig.getAccessKeyId(),qingStorConfig.getSecretAccessKey());
+        String zoneKey = "pek3b";
+        String bucketName = "hexinfeng";
+        Bucket bucket = new Bucket(env, zoneKey, bucketName);
+        // 获取文件名
+        String fileName = "resume/" + file.getOriginalFilename();
+        // 获取文件后缀(.xml)
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        // 若要防止生成的临时文件重复,需要在文件名后添加随机码
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile(fileName, suffix);
+            file.transferTo(tempFile);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         try {
-            file.transferTo(dest);
+            Bucket.PutObjectInput input = new Bucket.PutObjectInput();
+            input.setBodyInputFile(tempFile);
+            bucket.putObject(fileName, input);
+            tempFile.deleteOnExit();
             return "简历上传成功";
-        } catch (IOException e) {
+        } catch (QSException e) {
             return "简历上传失败";
         }
     }
+
     @Transactional
     @Override    //删除简历（物理删除+数据库删除）
     public void delete(Long id) {
         Optional<Resume> resumeOptional = resumeRepository.findById(id);
         if (resumeOptional.isPresent()) {
             Resume resume = resumeOptional.get();
-            File file = new File(resume.getFilePath());
-            if (file.exists()) {
-                boolean deleteResult = file.delete();
-                if (deleteResult) {
-                    resumeRepository.deleteById(id);
-                } else {
-                    log.error("文件删除失败: " + resume.getFileName());
-                }
-            } else {
-                // 文件不存在，可能已经被手动删除，直接删除数据库中的记录
-                resumeRepository.deleteById(id);
+            EnvContext env = new EnvContext(qingStorConfig.getAccessKeyId(),qingStorConfig.getSecretAccessKey());
+            String zoneKey = "pek3b";
+            String bucketName = "hexinfeng";
+            Bucket bucket = new Bucket(env, zoneKey, bucketName);
+            try {
+                Bucket.DeleteObjectOutput output = bucket.deleteObject(resume.getFilePath(), null);
+            } catch (QSException e) {
+                throw new RuntimeException(e);
             }
+            resumeRepository.deleteById(id);
         }
     }
 
