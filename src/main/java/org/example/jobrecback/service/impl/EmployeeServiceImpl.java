@@ -38,6 +38,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee findByUserId(Long userId) {
+        if(employeeRepository.findByUserId(userId)==null){
+            Employee employee = new Employee();
+            employee.setUserId(userId);
+            employee.setCreateTime(Instant.now());
+            employee.setUpdateTime(Instant.now());
+            employeeRepository.save(employee);
+        }
         return employeeRepository.findByUserId(userId);
     }
 
@@ -48,31 +55,34 @@ public class EmployeeServiceImpl implements EmployeeService {
             Employee employee1 = employeeRepository.findByUserId(userId);
             if(employee1 != null){
                 //更新
-                System.out.println("开始更新");
+                System.out.println(employee);
                 employee1.setUserId(userId);
                 employee1.setAddress(employee.getAddress());
                 employee1.setAge(employee.getAge());
                 employee1.setAdvantage(employee.getAdvantage());
-                employee1.setEmail(employee.getEmail());
-                employee1.setGender(employee.getGender());
+                if (employee.getAvatar().length() < 40000) {
+                    employee1.setAvatar(employee.getAvatar());
+                }
                 employee1.setAwardTag(employee.getAwardTag());
                 employee1.setCity(employee.getCity());
-                employee1.setWechat(employee.getWechat());
                 employee1.setDateOfBirth(employee.getDateOfBirth());
-                employee1.setRealName(employee.getRealName());
-                employee1.setUserPhone(employee.getUserPhone());
-                employee1.setQqNumber(employee.getQqNumber());
-                employee1.setSkillTag(employee.getSkillTag());
+                employee1.setEmail(employee.getEmail());
+                employee1.setGender(employee.getGender());
                 employee1.setPersonalityTag(employee.getPersonalityTag());
+                employee1.setQqNumber(employee.getQqNumber());
+                employee1.setRealName(employee.getRealName());
+                employee1.setSkillTag(employee.getSkillTag());
+                employee1.setWechat(employee.getWechat());
+                employee1.setUserPhone(employee.getUserPhone());
                 employee1.setWorkExperienceYear(employee.getWorkExperienceYear());
                 employee1.setUpdateTime(Instant.now());
+                employee1.setEnglishTag(employee.getEnglishTag());
+                employee1.setResumeIntegrity(employee.getResumeIntegrity());
                 //根据employeeId在EducationExperiences找到所有的行,简单粗暴先删除已经存在的教育经历,在插入新的教育经历
 
                 List<EducationExperience> existingEducationExperiences = educationExperienceRepository.findByEmployeeId(employee1.getId());
                 List<EducationExperience> newEducationExperiences = employee.getEducationExperiences();
                 newEducationExperiences.forEach(educationExperience -> {
-                            educationExperience.setCreateTime(Instant.now());
-                            educationExperience.setUpdateTime(Instant.now());
                             educationExperience.setEmployee(employee1);
                         }
                 );
@@ -91,8 +101,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.setUpdateTime(Instant.now());
                 List<EducationExperience> educationExperiences = employee.getEducationExperiences();
                 educationExperiences.forEach(educationExperience -> {
-                    educationExperience.setCreateTime(Instant.now());
-                    educationExperience.setUpdateTime(Instant.now());
                     educationExperience.setEmployee(employee);
                     }
                 );
