@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.jobrecback.dao.*;
 import org.example.jobrecback.pojo.*;
 import org.example.jobrecback.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,20 @@ public class UserServiceImpl implements UserService {
             }
         }
         return userRepository.findByUserNameContainingAndUserRoleAndIsDisabled(userNickname, userRole, isDisabled);
+    }
+    @Override
+    public Page<User> findByUserNameContainingAndUserRoleIdAndIsDisabled(Pageable pageable, String userNickname, Byte userRoleId, Byte isDisabled) {
+        String userRole = null;
+        if(userRoleId != null) {
+            if(userRoleId==0){
+                userRole = "管理员";
+            } else if (userRoleId==1) {
+                userRole = "招聘者";
+            }else if (userRoleId==2){
+                userRole = "求职者";
+            }
+        }
+        return userRepository.findByUserNameContainingAndUserRoleAndIsDisabled(pageable,userNickname, userRole, isDisabled);
     }
 
     @Override

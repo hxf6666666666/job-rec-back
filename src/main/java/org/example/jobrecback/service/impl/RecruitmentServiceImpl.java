@@ -9,6 +9,9 @@ import jakarta.persistence.criteria.Predicate;
 import org.example.jobrecback.dao.RecruitmentRepository;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.service.RecruitmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,10 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     public List<Recruitment> findAll() {
         return recruitmentRepository.findAll();
+    }
+    @Override
+    public Page<Recruitment> findAllByPage(Pageable pageable) {
+        return recruitmentRepository.findAll(pageable);
     }
 
     @Override
@@ -123,6 +130,75 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         // 创建排序对象，按照 createTime 字段倒序排序
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         return recruitmentRepository.findAll(spec, sort);
+    }
+    @Override
+    public Page<Recruitment> searchByPage(Pageable pageable,String name, Integer jobType, String city, Long industryId,
+                                          Byte workTimeType, Byte salary, Byte educationType) {
+        Specification<Recruitment> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (StringUtils.hasText(name)) {
+                predicates.add(cb.or(
+                        cb.like(root.get("jobName"), "%" + name + "%")
+                ));
+            }
+            if (jobType != null) {
+                predicates.add(cb.equal(root.get("jobType"), jobType));
+            }
+            if (city != null) {
+                predicates.add(cb.equal(root.get("city"), city));
+            }
+            if (industryId != null) {
+                predicates.add(cb.equal(root.get("industryId"), industryId));
+            }
+            if (workTimeType != null) {
+                predicates.add(cb.equal(root.get("workTimeType"), workTimeType));
+            }
+            //判断薪资上限大于薪资区间上限或者薪资下限小于薪资区间下限
+            //salary =0 1-3K =1 3-5K =2 5-10K =3 10-20K =4 20-50K =5 50K+
+            if (salary != null) {
+                switch (salary) {
+                    case 0 -> // 1-3K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 1),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 3)
+                            ));
+                    case 1 -> // 3-5K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 3),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 5)
+                            ));
+                    case 2 -> // 5-10K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 5),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 10)
+                            ));
+                    case 3 -> // 10-20K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 10),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 20)
+                            ));
+                    case 4 -> // 20-50K
+                            predicates.add(cb.and(
+                                    cb.greaterThanOrEqualTo(root.get("salaryUpper"), 20),
+                                    cb.lessThanOrEqualTo(root.get("salaryLower"), 50)
+                            ));
+                    case 5 -> // 50K+
+                            predicates.add(cb.greaterThanOrEqualTo(root.get("salaryUpper"), 50));
+                }
+            }
+            if (educationType != null) {
+                predicates.add(cb.equal(root.get("educationType"), educationType));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        // 创建排序对象，按照 createTime 字段倒序排序
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        // 将排序对象和分页信息组合到一个 Pageable 对象中
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        // 执行带有分页信息的查询
+        return recruitmentRepository.findAll(spec, pageable);
+//        return recruitmentRepository.findAll(spec, sort);
     }
 
     @Override

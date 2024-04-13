@@ -98,7 +98,20 @@ public class ResponseUtils {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    public static <A, B, C, D, E, F, G, H, R> ResponseEntity<R> response(EightFunction<A, B, C, D, E, F, G, H, R> function, A a, B b, C c, D d, E e, F f, G g, H h) {
+        try {
+            R r = function.apply(a, b, c, d, e, f, g, h);
+            if (r != null) {
+                return new ResponseEntity<>(r, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e1) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e1) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
 }

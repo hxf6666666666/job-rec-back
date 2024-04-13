@@ -6,17 +6,28 @@ import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.User;
 import org.example.jobrecback.service.UserService;
 import org.example.jobrecback.utils.ResponseUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static org.example.jobrecback.utils.RedisConstant.LOGIN_USER_KEY;
+import static org.example.jobrecback.utils.RedisConstant.LOGIN_USER_TTL;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
     @Resource
     private UserService userService;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     // 搜索用户
     @GetMapping("/all")
@@ -25,6 +36,17 @@ public class UserController {
             @RequestParam(required = false) Byte userRoleId,
             @RequestParam(required = false) Byte isDisabled) {
         return userService.findByUserNameContainingAndUserRoleIdAndIsDisabled(userNickname, userRoleId, isDisabled);
+    }
+    //分页搜索用户
+    @GetMapping("/all/{page}/{size}")
+    public Page<User> searchUsers(
+            @PathVariable("page") int page,
+            @PathVariable("size") int size,
+            @RequestParam(required = false) String userNickname,
+            @RequestParam(required = false) Byte userRoleId,
+            @RequestParam(required = false) Byte isDisabled) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userService.findByUserNameContainingAndUserRoleIdAndIsDisabled(pageable, userNickname, userRoleId, isDisabled);
     }
 
     @DeleteMapping("/{id}")
@@ -46,10 +68,25 @@ public class UserController {
     public ResponseEntity<User> getUserDetail(@RequestHeader("Authorization") String authorizationHeader) {
         // 检查Authorization头部参数是否存在并且以Bearer开头
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7); // 获取Token
-            // 根据Token查询用户信息
-            User user = userService.findUserByToken(token);
+            String token = authorizationHeader.substring(14); // 获取Token
+            //基于token获取redis中的用户
+            String key = LOGIN_USER_KEY + token;
+            Map<Object, Object> userMap = stringRedisTemplate.opsForHash()
+                    .entries(key);
+            System.out.println("userMap"+userMap);
+
+            //判断用户是否存在
+            if(userMap.isEmpty()){
+                //不存在，拦截，返回401
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            Long userId = Long.valueOf(userMap.get("userId").toString());
+
+            //根据userId去数据库里查用户信息
+            User user = userService.findUserById(userId);
             if (user != null) {
+                //刷新token有效期
+                stringRedisTemplate.expire(key, LOGIN_USER_TTL/60000, TimeUnit.MINUTES);
                 return ResponseEntity.ok(user);
             } else {
                 return ResponseEntity.notFound().build();

@@ -8,6 +8,9 @@ import org.example.jobrecback.service.EmployeeService;
 import org.example.jobrecback.service.ResumeService;
 import org.example.jobrecback.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,14 +46,16 @@ public class ResumeController {
         }
     }
 
-
-
     //获取全部简历
     @GetMapping("/getAll")
     public  ResponseEntity<List<Resume>> getAll(){
         return ResponseUtils.response(resumeService::findAll);
     }
-
+    @GetMapping("/getAll/{page}/{size}")
+    public ResponseEntity<Page<Resume>> getAll(@PathVariable int page, @PathVariable int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseUtils.response(resumeService::findAllByPage,pageable);
+    }
     //上传兼更新
     @PostMapping("/upload/{employeeId}")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,@PathVariable("employeeId") Long employeeId){
@@ -71,5 +76,16 @@ public class ResumeController {
     ) {
         System.out.println("fileName: "+fileName+" uploaderName: "+uploaderName);
         return ResponseUtils.response(resumeService::searchResume,fileName,uploaderName);
+    }
+    //按条件搜索
+    @GetMapping("/search/{page}/{size}")
+    public ResponseEntity<Page<Resume>> searchResume(
+            @PathVariable("page") int page,
+            @PathVariable("size") int size,
+            @RequestParam(name = "fileName",required = false) String fileName,
+            @RequestParam(name = "uploaderName",required = false) String uploaderName
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseUtils.response(resumeService::searchResumeByPage,pageable,fileName,uploaderName);
     }
 }

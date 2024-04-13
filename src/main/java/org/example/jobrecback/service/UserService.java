@@ -3,12 +3,15 @@ package org.example.jobrecback.service;
 import org.example.jobrecback.pojo.Employee;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 
 public interface UserService {
     List<User> findByUserNameContainingAndUserRoleIdAndIsDisabled(String userNickname, Byte userRoleId, Byte isDisabled);
+    Page<User> findByUserNameContainingAndUserRoleIdAndIsDisabled(Pageable pageable, String userNickname, Byte userRoleId, Byte isDisabled);
 
     void deleteById(Long id);
 
