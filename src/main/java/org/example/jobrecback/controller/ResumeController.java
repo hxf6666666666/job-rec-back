@@ -2,6 +2,7 @@ package org.example.jobrecback.controller;
 
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
+import org.example.jobrecback.pojo.Employee;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.Resume;
 import org.example.jobrecback.service.EmployeeService;
@@ -34,17 +35,21 @@ public class ResumeController {
         try{
             Long employeeId = employeeService.findIdByUserId(userId);
             if (employeeId == null) {
-                return ResponseEntity.notFound().build();
+                Employee employee = new Employee();
+                employee.setId(userId);
+                employeeService.uploadEmployee(employee, userId);
             }
             Resume resume = resumeService.findByEmployeeId(employeeId);
             if (resume == null) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.ok(resume);
             }
             return ResponseEntity.ok(resume);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     //获取全部简历
     @GetMapping("/getAll")
@@ -76,16 +81,5 @@ public class ResumeController {
     ) {
         System.out.println("fileName: "+fileName+" uploaderName: "+uploaderName);
         return ResponseUtils.response(resumeService::searchResume,fileName,uploaderName);
-    }
-    //按条件搜索
-    @GetMapping("/search/{page}/{size}")
-    public ResponseEntity<Page<Resume>> searchResume(
-            @PathVariable("page") int page,
-            @PathVariable("size") int size,
-            @RequestParam(name = "fileName",required = false) String fileName,
-            @RequestParam(name = "uploaderName",required = false) String uploaderName
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseUtils.response(resumeService::searchResumeByPage,pageable,fileName,uploaderName);
     }
 }

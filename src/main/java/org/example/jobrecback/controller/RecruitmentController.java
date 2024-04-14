@@ -114,6 +114,16 @@ public class RecruitmentController {
     //更新职位信息
     @PutMapping("/update")
     public ResponseEntity<String> update(@RequestBody Recruitment recruitment){
-        return ResponseUtils.response(recruitmentService::update,recruitment);
+        // 设置招聘信息的创建和更新时间为当前时间
+        Instant now = Instant.now();
+        recruitment.setUpdateTime(now);
+        try {
+            String JNKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath1,1);
+            String PSKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath2,2);
+            recruitment.setJobSkills(JNKeywords);
+            recruitment.setJobPersonality(PSKeywords);
+            return ResponseUtils.response(recruitmentService::update,recruitment);
+        } catch (Exception ignored) {}
+        return null;
     }
 }

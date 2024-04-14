@@ -31,7 +31,7 @@ public class Employee {
     private Double resumeIntegrity;
 
     // 简历头像
-    @Column(name = "avatar",columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+    @Column(name = "avatar",columnDefinition = "MEDIUMBLOB")
     private String avatar;
 
     // 用户id
@@ -52,7 +52,7 @@ public class Employee {
 
     // 生日
     @Column(name = "dateOfBirth")
-    private LocalDate dateOfBirth;
+    private String dateOfBirth;
 
     // 城市
     @Column(name = "city")
@@ -79,24 +79,24 @@ public class Employee {
     private String wechat;
 
     // 技能标签，数量不定
-    @Column(name = "skillTag", length = 512)
+    @Column(name = "skillTag", length = 1024)
     private String skillTag;
 
     /// 奖项标签，数量不定
-    @Column(name = "awardTag", length = 512)
+    @Column(name = "awardTag", length = 1024)
     private String awardTag;
 
     // 素养标签，数量不定
-    @Column(name = "personalityTag", length = 512)
+    @Column(name = "personalityTag", length = 1024)
     private String personalityTag;
 
     // 原始信息，rawText
-    @Column(name = "advantage")
+    @Column(name = "advantage",columnDefinition = "MEDIUMBLOB")
     private String advantage;
 
     // 工作年限
     @Column(name = "workExperienceYear")
-    private Integer workExperienceYear;
+    private String workExperienceYear;
 
     @Column(name = "englishTag")
     private String englishTag;
