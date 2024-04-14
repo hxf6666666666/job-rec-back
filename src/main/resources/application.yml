@@ -42,7 +42,7 @@ xf:
     appId: 5483859a
     apiSecret: YjAwMjljMzQ0ZjY1ODJkYTMxMWViOTA5
     apiKey: 3687edcd553f58ab30970f74ccc613f8
-    maxResponseTime: 30
+    maxResponseTime: 999999999
 
 qingstor:
   access_key_id: KCSIUHLLRMAKEZDRPMKT

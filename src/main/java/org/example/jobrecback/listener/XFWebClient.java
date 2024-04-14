@@ -114,8 +114,8 @@ public class XFWebClient {
         // parameter参数
         JSONObject parameter = new JSONObject();
         JSONObject chat = new JSONObject();
-        chat.put("domain", "generalv2");
-        chat.put("temperature", 0.5);
+        chat.put("domain", "generalv3.5");
+        chat.put("temperature", 0.1);//温度
         chat.put("max_tokens", 4096);
         parameter.put("chat", chat);
         // payload参数
