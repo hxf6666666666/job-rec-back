@@ -1,12 +1,11 @@
 package org.example.jobrecback.controller;
 
 import jakarta.annotation.Resource;
+import org.example.jobrecback.pojo.Employee;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.service.RecruitmentService;
 import org.example.jobrecback.utils.ResponseUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +20,8 @@ import java.util.Map;
 public class RecruitmentController {
     @Resource
     private RecruitmentService recruitmentService;
-    String dictPath1 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\JN.txt";
-    String dictPath2 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
+    String dictPath1 = "src/main/resources/dict/JN.txt";
+    String dictPath2 = "src/main/resources/dict/PS.txt";
 
     // 发布招聘岗位
     @PostMapping("/post")
@@ -64,15 +63,47 @@ public class RecruitmentController {
     public ResponseEntity<List<Recruitment>> getAll() {
         return ResponseUtils.response(recruitmentService::findAll);
     }
-    //查看所有职位
-    @GetMapping("/getAll/{page}/{size}")
-    public ResponseEntity<Page<Recruitment>> getAllByPage(@PathVariable int page, @PathVariable int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseUtils.response(recruitmentService::findAllByPage,pageable);
-    }
     // 根据职位、公司名称，求职类型，城市和区域，职位类型，工作经验，薪资待遇，学历要求搜索职位
+    @GetMapping("/search2")
+    public ResponseEntity<Page<Recruitment>> searchRecruitment2(
+            @RequestParam(name = "jobName", required = false) String name,
+            @RequestParam(name = "jobType", required = false) Integer jobType,
+            @RequestParam(name = "city", required = false) String city,
+            @RequestParam(name = "industryId", required = false) Long industryId,
+            @RequestParam(name = "workTimeType", required = false) Byte workTimeType,
+            @RequestParam(name = "salary", required = false) Byte salary,
+            @RequestParam(name = "educationType", required = false) Byte educationType,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "100") int pageSize
+    ) {
+        System.out.println("selectPosts: " +
+                "name:" + name +
+                " jobType:" + jobType +
+                " city:" + city +
+                " industryId:" + industryId +
+                " workTimeType:" + workTimeType +
+                " salary:" + salary +
+                " educationType:" + educationType +
+                " page:" + page +
+                " pageSize:" + pageSize);
+
+        Page<Recruitment> searchResult = recruitmentService.search2(
+                name,
+                jobType,
+                city,
+                industryId,
+                workTimeType,
+                salary,
+                educationType,
+                page,
+                pageSize
+        );
+
+        return ResponseEntity.ok(searchResult);
+    }
+
     @GetMapping("/search")
-    public ResponseEntity<List<Recruitment>> searchRecruitment(
+    public ResponseEntity searchRecruitment(
             @RequestParam(name = "jobName",required = false) String name,
             @RequestParam(name = "jobType",required = false) Integer jobType,
             @RequestParam(name = "city",required = false) String city,
@@ -81,14 +112,12 @@ public class RecruitmentController {
             @RequestParam(name = "salary",required = false) Byte salary,
             @RequestParam(name = "educationType",required = false) Byte educationType
     ) {
-        System.out.println("selectPosts: "+"name:"+name+" jobType:"+jobType+" city:"+city+" industryId:"+industryId+" workTimeType:"+workTimeType+" salary:"+salary+" educationType:"+educationType);
-        return ResponseUtils.response(recruitmentService::search,name,jobType,city,industryId,workTimeType,salary,educationType);
+        return ResponseUtils.response(recruitmentService::search, name,jobType,city,industryId,workTimeType,salary,educationType);
     }
-    // 根据职位、公司名称，求职类型，城市和区域，职位类型，工作经验，薪资待遇，学历要求搜索职位
-    @GetMapping("/search/{page}/{size}")
-    public ResponseEntity<Page<Recruitment>> searchRecruitmentByPage(
-            @PathVariable("page") int page,
-            @PathVariable("size") int size,
+
+    @PostMapping("/recommend")
+    public ResponseEntity<List<Recruitment>> recommendRecruitment(
+            @RequestBody Employee employee,
             @RequestParam(name = "jobName",required = false) String name,
             @RequestParam(name = "jobType",required = false) Integer jobType,
             @RequestParam(name = "city",required = false) String city,
@@ -97,9 +126,11 @@ public class RecruitmentController {
             @RequestParam(name = "salary",required = false) Byte salary,
             @RequestParam(name = "educationType",required = false) Byte educationType
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseUtils.response(recruitmentService::searchByPage,pageable,name,jobType,city,industryId,workTimeType,salary,educationType);
+        System.out.println("employee"+ employee +"selectPosts: "+"name:"+name+" jobType:"+jobType+" city:"+city+" industryId:"+industryId+" workTimeType:"+workTimeType+" salary:"+salary+" educationType:"+educationType);
+        return ResponseUtils.response(recruitmentService::recommend, employee, name,jobType,city,industryId,workTimeType,salary,educationType);
     }
+
+
     //根据职位id返回职位的所有信息
     @GetMapping("/getByID/{id}")
     public ResponseEntity<Recruitment> getByID(@PathVariable("id") Long id){

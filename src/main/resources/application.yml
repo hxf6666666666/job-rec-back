@@ -4,8 +4,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/career?serverTimezone=GMT%2B8&characterEncoding=utf-8
     username: root
-#    password: hxf.20210611
-    password: Wa2497686061
+    password: hxf.20210611
+#    password: Wa2497686061
   jpa:
     show-sql: true
     open-in-view: false
@@ -18,8 +18,8 @@ spring:
       max-file-size: 100MB
       # 最大支持请求大小
       max-request-size: 100MB
-  data:
-    redis:
+#  data:
+#    redis:
 #      cluster:
 #        nodes:
 #          - 192.168.252.128:7001
@@ -28,14 +28,14 @@ spring:
 #          - 192.168.252.128:8001
 #          - 192.168.252.128:8002
 #          - 192.168.252.128:8003
-      host: 127.0.0.1
-      port: 6379
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: 1000ms
+#      host: 127.0.0.1
+#      port: 6379
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: 1000ms
 xf:
   config:
     hostUrl: https://spark-api.xf-yun.com/v3.5/chat
@@ -53,6 +53,3 @@ qingstor:
   read_timeout: 100
   connection_timeout: 60
   write_timeout: 100
-
-hutool:
-  AES_KEY: F&U#7r@]E{Dx9sRvX!P3^GcW@2]H*+A~

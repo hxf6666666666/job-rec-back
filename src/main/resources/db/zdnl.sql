@@ -192,34 +192,3 @@ CREATE TABLE IF NOT EXISTS city (
     isDeleted     TINYINT DEFAULT 0 NOT NULL COMMENT '是否删除，0表示未删除，1表示已删除',
     UNIQUE(cityName, provinceName) COMMENT '唯一索引：城市名称和所在省份的组合唯一'
 ) COMMENT '城市信息表' COLLATE = utf8mb4_unicode_ci;
-
--- 用户浏览历史表
-CREATE TABLE IF NOT EXISTS job_history(
-    id          bigint auto_increment               comment 'id' primary key,
-    userId      bigint                              not null comment '用户ID',
-    recruitmentId bigint                            not null comment '职位ID',
-    createTime    DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    FOREIGN KEY (userId) REFERENCES user(id),
-    FOREIGN KEY (recruitmentId) REFERENCES recruitment(id)
-);
-
--- 用户收藏职位表
-CREATE TABLE IF NOT EXISTS job_favorites (
-    id          bigint auto_increment               comment 'id' primary key,
-    userId      bigint                              not null comment '用户ID',
-    recruitmentId bigint                            not null comment '职位ID',
-    createTime    DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    FOREIGN KEY (userId) REFERENCES user(id),
-    FOREIGN KEY (recruitmentId) REFERENCES recruitment(id)
-);
-
--- 投递信息表
-CREATE TABLE IF NOT EXISTS job_applications (
-    id          bigint auto_increment               comment 'id' primary key,
-    userId      bigint                              not null comment '用户ID',
-    recruitmentId bigint                            not null comment '职位ID',
-    offerStatus      varchar(50)                        not null comment '投递状态',
-    createTime    DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
-    FOREIGN KEY (userId) REFERENCES user(id),
-    FOREIGN KEY (recruitmentId) REFERENCES recruitment(id)
-);

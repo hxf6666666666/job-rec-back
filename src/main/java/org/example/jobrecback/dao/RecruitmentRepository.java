@@ -1,6 +1,7 @@
 package org.example.jobrecback.dao;
 
 import org.example.jobrecback.pojo.Recruitment;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,4 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     List<Recruitment> findAllByIndustryId(Long industryId);
 
     List<Recruitment> findAllByJobNameContaining(String name);
-
-    List<Recruitment> findByIdIn(List<Long> recruitmentIds);
 }

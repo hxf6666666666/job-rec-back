@@ -1,8 +1,11 @@
 package org.example.jobrecback;
 
+import org.example.jobrecback.dao.RecruitmentRepository;
+import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.service.RecruitmentService;
 import org.example.jobrecback.service.impl.RecruitmentServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.xm.Similarity;
 import org.xm.similarity.text.CosineSimilarity;
@@ -11,9 +14,17 @@ import org.xm.similarity.text.TextSimilarity;
 import org.xm.tendency.word.HownetWordTendency;
 
 import java.io.IOException;
+import java.util.List;
 
 @SpringBootTest
 class JobRecBackApplicationTests {
+
+    @Autowired
+    RecruitmentService recruitmentService;
+    @Autowired
+    RecruitmentRepository recruitmentRepository;
+    String dictPath1 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\JN.txt";
+    String dictPath2 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
 
     @Test
     void contextLoads() {
@@ -45,7 +56,7 @@ class JobRecBackApplicationTests {
     @Test
     void test2(){
         String description = "适合有点基础、技术有待提高且没有项目经验的新人条件：1、思维逻辑清晰，有较好的理解和沟通协助能力。2、积极上进有责任心，有毅力，能吃苦耐劳。3、学习能力强，能快速掌握新技术，对新技术保持关注和热情。4、熟悉HTML、CSS、javaScript等基础知识优先；5、接受0基础但是努力、认真的新人。\n";
-        String dictPath = "D:\\idea2022破解版\\IDEA项目\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
+        String dictPath = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
 
         RecruitmentService service = new RecruitmentServiceImpl();
 
@@ -57,5 +68,27 @@ class JobRecBackApplicationTests {
         }
     }
 
-
+    @Test
+    void test3(){
+        List<Recruitment> recruitments = recruitmentRepository.findAll();
+        for (Recruitment recruitment : recruitments) {
+            if (recruitment.getJobSkills() == null) {
+                try {
+                    String JNKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath1,1);
+                    recruitment.setJobSkills(JNKeywords);
+                    System.out.println(JNKeywords);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (recruitment.getJobPersonality()==null){
+                try {
+                    String JNKeywords = recruitmentService.extractEntitiesFromDescription(recruitment.getJobDescription(),dictPath2,2);
+                    recruitment.setJobPersonality(JNKeywords);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
