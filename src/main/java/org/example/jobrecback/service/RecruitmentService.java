@@ -1,5 +1,6 @@
 package org.example.jobrecback.service;
 
+import org.example.jobrecback.pojo.Employee;
 import org.example.jobrecback.pojo.Recruitment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +35,13 @@ public interface RecruitmentService {
     Page<Recruitment> findAllByPage(Pageable pageable);
     Page<Recruitment> searchByPage(Pageable pageable,String name, Integer jobType, String city, Long industryId, Byte workTimeType, Byte salary, Byte educationType);
 
+    List<Recruitment> recommend(Employee employee, String name, Integer jobType, String city, Long industryId, Byte workTimeType, Byte salary, Byte educationType);
+    Page<Recruitment> search2(String name, Integer jobType, String city, Long industryId,
+                              Byte workTimeType, Byte salary, Byte educationType,
+                              int page, int pageSize);
+    String addFavorites(Long userId,Long recruitmentId);
+    String deleteFavorites(Long userId,Long recruitmentId);
+    List<Employee> getFavorites(Long recruitmentId);
+    String isFavorites(Long userId,Long recruitmentId);
+    Long countAll();
 }

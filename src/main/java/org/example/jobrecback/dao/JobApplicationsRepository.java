@@ -21,4 +21,6 @@ public interface JobApplicationsRepository extends JpaRepository<JobApplications
     List<Long> findRecruitmentIdByUserIdAndOfferStatus(Long userId,String offerStatus);
     @Query("SELECT j.userId FROM JobApplications j WHERE j.recruitmentId = :recruitmentId AND j.offerStatus = :offerStatus ORDER BY j.createTime DESC")
     List<Long> findUserIdByRecruitmentIdAndOfferStatus(Long recruitmentId, String offerStatus);
+
+    void deleteByUserIdAndRecruitmentId(Long userId, Long recruitmentId);
 }

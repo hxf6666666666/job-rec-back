@@ -1,11 +1,13 @@
 package org.example.jobrecback.controller;
 
 import jakarta.annotation.Resource;
+import org.example.jobrecback.annotation.CacheableToJSON;
 import org.example.jobrecback.pojo.Employee;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.pojo.User;
 import org.example.jobrecback.service.UserService;
 import org.example.jobrecback.utils.ResponseUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.CacheManager;
 
 import java.util.List;
 import java.util.Map;
@@ -64,6 +67,7 @@ public class UserController {
         return userService.updateUser(id,user);
     }
 
+//    @CacheableToJSON(cacheNames = "user_detail", key = "#authorizationHeader", time = 60)
     @GetMapping("/detail")
     public ResponseEntity<User> getUserDetail(@RequestHeader("Authorization") String authorizationHeader) {
         // 检查Authorization头部参数是否存在并且以Bearer开头
@@ -113,6 +117,23 @@ public class UserController {
     public ResponseEntity<String> addApplications(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
         return ResponseUtils.response(userService::addApplications,userId,recruitmentId);
     }
+    //删除浏览历史
+//    @DeleteMapping("/history/{userId}/{recruitmentId}")
+//    public void deleteHistory(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+//        userService.deleteHistory(userId,recruitmentId);
+//    }
+
+    //取消收藏
+    @DeleteMapping("/favorites/{userId}/{recruitmentId}")
+    public ResponseEntity<String> deleteFavorites(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        System.out.println("开始取消收藏");
+        return ResponseUtils.response(userService::deleteFavorites,userId,recruitmentId);
+    }
+    //取消投递offer
+    @DeleteMapping("/applications/{userId}/{recruitmentId}")
+    public ResponseEntity<String> deleteApplications(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(userService::deleteApplications,userId,recruitmentId);
+    }
     //获取我的浏览历史
     @GetMapping("/history/{userId}")
     public ResponseEntity<List<Recruitment>> getHistory(@PathVariable("userId")Long userId) {
@@ -143,10 +164,40 @@ public class UserController {
     public ResponseEntity<String> distributeOffer(@PathVariable("userId") Long userId,@PathVariable("recruitmentId") Long recruitmentId){
         return ResponseUtils.response(userService::distributeOffer,userId,recruitmentId);
     }
+    //取消发放offer
+    //取消投递offer
+    @PutMapping("/cancelOffers/{userId}/{recruitmentId}")
+    public ResponseEntity<String> cancelOffers(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(userService::cancelOffer,userId,recruitmentId);
+    }
     //获取入选人员的相关信息
     @GetMapping("/winners/{recruitmentId}")
     public ResponseEntity<List<Employee>> getWinners(@PathVariable("recruitmentId")Long recruitmentId){
         return ResponseUtils.response(userService::getWinners,recruitmentId);
     }
-
+    //获取收藏过该职位的求职者
+    @GetMapping("/favorites2/{recruitmentId}")
+    public ResponseEntity<List<Employee>> getFavorites2(@PathVariable("recruitmentId")Long recruitmentId){
+        return ResponseUtils.response(userService::getFavorites2,recruitmentId);
+    }
+    //获取投递过该职位的求职者
+    @GetMapping("/offers2/{recruitmentId}")
+    public ResponseEntity<List<Employee>> getOffers2(@PathVariable("recruitmentId")Long recruitmentId){
+        return ResponseUtils.response(userService::getOffers2,recruitmentId);
+    }
+    //确认职位是否收藏
+    @GetMapping("/favorites/{userId}/{recruitmentId}")
+    public ResponseEntity<String> isFavorites(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(userService::isFavorites,userId,recruitmentId);
+    }
+    //确认offer是否投递
+    @GetMapping("/applications/{userId}/{recruitmentId}")
+    public ResponseEntity<String> isApplications(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(userService::isApplications,userId,recruitmentId);
+    }
+    //确认offer是否发放
+    @GetMapping("/offers/{userId}/{recruitmentId}")
+    public ResponseEntity<String> isDistribute(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(userService::isDistribute,userId,recruitmentId);
+    }
 }

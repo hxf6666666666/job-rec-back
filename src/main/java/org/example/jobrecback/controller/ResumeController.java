@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/resume")
@@ -35,15 +36,14 @@ public class ResumeController {
         try{
             Long employeeId = employeeService.findIdByUserId(userId);
             if (employeeId == null) {
-                Employee employee = new Employee();
-                employee.setId(userId);
-                employeeService.uploadEmployee(employee, userId);
+                //用户还未上传简历，返回空
+//                Employee employee = new Employee();
+//                employee.setId(userId);
+//                employeeService.uploadEmployee(employee, userId);
+                return ResponseEntity.ok(new Resume());
             }
             Resume resume = resumeService.findByEmployeeId(employeeId);
-            if (resume == null) {
-                return ResponseEntity.ok(resume);
-            }
-            return ResponseEntity.ok(resume);
+            return ResponseEntity.ok(Objects.requireNonNullElseGet(resume, Resume::new));
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

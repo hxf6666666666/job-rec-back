@@ -1,24 +1,9 @@
-package org.example.jobrecback.config;
+package org.example.jobrecback.interceptor;
 
 import org.springframework.context.annotation.Configuration;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.annotation.Bean;
-//import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-//import static com.example.module1.constant.RedisConstant.LOGIN_USER_KEY;
-//import static com.example.module1.constant.RedisConstant.LOGIN_USER_TTL;
 
 @Configuration
-public class testInterceptor {
+public class AuthenticationInterceptor {
 //    @Resource
 //    private StringRedisTemplate stringRedisTemplate;
 //    @Bean
@@ -34,7 +19,10 @@ public class testInterceptor {
 //                    return false;
 //                }
 //                System.out.println("拦截器检测到的token:"+token);
-//
+//                String ipAddr = IpUtils.getIpAddr(request);
+//                System.out.println("ip地址："+ipAddr);
+//                String header = request.getHeader("User-Agent");
+//                System.out.println("User-Agent:"+header);
 //                //基于token获取redis中的用户
 //                String key = LOGIN_USER_KEY + token;
 //                Map<Object, Object> userMap = stringRedisTemplate.opsForHash()
@@ -69,8 +57,8 @@ public class testInterceptor {
 //        return new WebMvcConfigurer() {
 //            @Override
 //            public void addInterceptors(InterceptorRegistry registry) {
-////                registry.addInterceptor(loginInterceptor()).
-////                        addPathPatterns("/login").excludePathPatterns("/login.html","/","/user/login","/static/**");
+//                registry.addInterceptor(loginInterceptor()).
+//                        addPathPatterns("/**").excludePathPatterns("/login.html","/","/auth/login","/static/**");
 //            }
 //        };
 //    }

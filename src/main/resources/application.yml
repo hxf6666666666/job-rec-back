@@ -28,7 +28,8 @@ spring:
 #          - 192.168.252.128:8001
 #          - 192.168.252.128:8002
 #          - 192.168.252.128:8003
-      host: 127.0.0.1
+#      host: 127.0.0.1
+      host: 47.99.156.111
       port: 6379
       lettuce:
         pool:
@@ -36,6 +37,10 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: 1000ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60
 xf:
   config:
     hostUrl: https://spark-api.xf-yun.com/v3.5/chat

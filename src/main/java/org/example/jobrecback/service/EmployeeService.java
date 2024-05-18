@@ -24,4 +24,9 @@ public interface EmployeeService {
 
     List<Employee> findAllDecrypt();
     Page<Employee> findAllDecryptByPage(Pageable pageable);
+    List<Employee> recommend(Long id);
+
+    String crypt();
+
+    Long countAll();
 }

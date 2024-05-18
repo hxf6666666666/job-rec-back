@@ -1,16 +1,22 @@
 package org.example.jobrecback.service.impl;
 
 
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.digest.BCrypt;
+import cn.hutool.crypto.symmetric.AES;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.jobrecback.dao.*;
 import org.example.jobrecback.pojo.*;
 import org.example.jobrecback.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +28,8 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserRepository userRepository;
 
+    @Value("${hutool.AES_KEY}")
+    private String AES_KEY;
     /*
      * 昵称模糊查询 + 角色精确查询 + 状态精确查询
      *
@@ -81,7 +89,7 @@ public class UserServiceImpl implements UserService {
             oldUser.setUserNickname(user.getUserNickname());
         }
         if (user.getUserPassword() != null) {
-            oldUser.setUserPassword(user.getUserPassword());
+            oldUser.setUserPassword(BCrypt.hashpw(user.getUserPassword()));
         }
         oldUser.setUpdateTime(Instant.now());
         return userRepository.save(oldUser);
@@ -153,6 +161,23 @@ public class UserServiceImpl implements UserService {
         }
         return "操作成功";
     }
+    @Transactional
+    @Override
+    public String deleteFavorites(Long userId, Long recruitmentId){
+        try{
+            long l = jobFavoritesRepository.deleteByUserIdAndRecruitmentId(userId, recruitmentId);
+            System.out.println("删除的索引:"+l);
+            if(l>0)return "操作成功";
+            else return "操作失败";
+        }catch (Exception e){
+            return "操作失败："+e.getMessage();
+        }
+    }
+    @Override
+    public String isFavorites(Long userId, Long recruitmentId){
+        JobFavorites existingJobFavorites = jobFavoritesRepository.findByUserIdAndRecruitmentId(userId, recruitmentId);
+        return existingJobFavorites!=null?"已收藏":"未收藏";
+    }
 
     @Resource
     private JobApplicationsRepository jobApplicationsRepository;
@@ -172,9 +197,30 @@ public class UserServiceImpl implements UserService {
         }
         return "操作成功";
     }
+    @Transactional
+    @Override
+    public String deleteApplications(Long userId, Long recruitmentId){
+        try{
+            jobApplicationsRepository.deleteByUserIdAndRecruitmentId(userId, recruitmentId);
+            return "操作成功";
+        }catch (Exception e){
+            return "操作失败："+e.getMessage();
+        }
+    }
+    @Override
+    public String isApplications(Long userId, Long recruitmentId){
+        JobApplications existingJobApplications = jobApplicationsRepository.findByUserIdAndRecruitmentId(userId, recruitmentId);
+        return existingJobApplications!=null?"已投递":"未投递";
+    }
+    @Override
+    public String isDistribute(Long userId, Long recruitmentId){
+        JobApplications existingJobApplications = jobApplicationsRepository.findByUserIdAndRecruitmentId(userId, recruitmentId);
+        if(existingJobApplications==null)return "未发放";
+        return "已发放".equals(existingJobApplications.getOfferStatus())?"已发放":"未发放";
+    }
+
     @Resource
     private RecruitmentRepository recruitmentRepository;
-
     @Override
     public List<Recruitment> getHistory(Long userId) {
         // 先从JobHistory表中查到userId对应的所有recruitmentId，按照时间降序排序
@@ -239,6 +285,24 @@ public class UserServiceImpl implements UserService {
             existingJobApplication.setOfferStatus("已发放");
             jobApplicationsRepository.save(existingJobApplication);
             return "操作成功";
+        }else {
+            JobApplications jobApplications = new JobApplications();
+            jobApplications.setUserId(userId);
+            jobApplications.setRecruitmentId(recruitmentId);
+            jobApplications.setOfferStatus("已发放");
+            jobApplications.setCreateTime(Instant.now());
+            jobApplicationsRepository.save(jobApplications);
+            return "操作成功";
+        }
+    }
+    @Override
+    public String cancelOffer(Long userId, Long recruitmentId) {
+        //修改JobApplications表中userId和recruitmentId对应的的offerStatus为"已发放"
+        JobApplications existingJobApplication = jobApplicationsRepository.findByUserIdAndRecruitmentId(userId,recruitmentId);
+        if(existingJobApplication!=null){
+            existingJobApplication.setOfferStatus("已投递");
+            jobApplicationsRepository.save(existingJobApplication);
+            return "操作成功";
         }else return "查询不到对应offer";
     }
 
@@ -246,11 +310,33 @@ public class UserServiceImpl implements UserService {
     public List<Employee> getWinners(Long recruitmentId) {
         List<Long> userIds = jobApplicationsRepository.findUserIdByRecruitmentIdAndOfferStatus(recruitmentId,"已发放");
         List<Employee> employeeList = new ArrayList<>();
+        return getEmployees(userIds, employeeList);
+    }
+    @Override
+    public List<Employee> getFavorites2(Long recruitmentId) {
+        List<Long> userIds = jobFavoritesRepository.findUserIdByRecruitmentId(recruitmentId);
+        List<Employee> employeeList = new ArrayList<>();
+        return getEmployees(userIds, employeeList);
+    }
+    @Override
+    public List<Employee> getOffers2(Long recruitmentId){
+        List<Long> userIds = jobApplicationsRepository.findUserIdByRecruitmentIdAndOfferStatus(recruitmentId,"已投递");
+        List<Employee> employeeList = new ArrayList<>();
+        return getEmployees(userIds, employeeList);
+    }
+
+    private List<Employee> getEmployees(List<Long> userIds, List<Employee> employeeList) {
         for (Long userId : userIds) {
-            employeeList.add(employeeRepository.findByUserId(userId));
+            Employee employee1 = employeeRepository.findByUserId(userId);
+            AES aes = SecureUtil.aes(AES_KEY.getBytes());
+            employee1.setAddress(new String(aes.decrypt(employee1.getAddress()), StandardCharsets.UTF_8));
+            employee1.setEmail(new String(aes.decrypt(employee1.getEmail()), StandardCharsets.UTF_8));
+            employee1.setQqNumber(new String(aes.decrypt(employee1.getQqNumber()), StandardCharsets.UTF_8));
+            employee1.setRealName(new String(aes.decrypt(employee1.getRealName()), StandardCharsets.UTF_8));
+            employee1.setUserPhone(new String(aes.decrypt(employee1.getUserPhone()), StandardCharsets.UTF_8));
+            employee1.setWechat(new String(aes.decrypt(employee1.getWechat()), StandardCharsets.UTF_8));
+            employeeList.add(employee1);
         }
         return employeeList;
     }
-
-
 }

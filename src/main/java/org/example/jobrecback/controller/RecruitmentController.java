@@ -1,9 +1,13 @@
 package org.example.jobrecback.controller;
 
 import jakarta.annotation.Resource;
+import org.example.jobrecback.annotation.CacheableToJSON;
+import org.example.jobrecback.annotation.CacheableToNotJSON;
+import org.example.jobrecback.pojo.Employee;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.service.RecruitmentService;
 import org.example.jobrecback.utils.ResponseUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +25,10 @@ import java.util.Map;
 public class RecruitmentController {
     @Resource
     private RecruitmentService recruitmentService;
-    String dictPath1 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\JN.txt";
-    String dictPath2 = "E:\\※NJUCM\\AAAAAA服创赛\\job-rec-back\\src\\main\\resources\\dict\\PS.txt";
+//    String dictPath1 = "src/main/resources/dict/JN.txt";
+//    String dictPath2 = "src/main/resources/dict/PS.txt";
+    String dictPath1 = "dict/JN.txt";
+    String dictPath2 = "dict/PS.txt";
 
     // 发布招聘岗位
     @PostMapping("/post")
@@ -97,13 +103,51 @@ public class RecruitmentController {
             @RequestParam(name = "salary",required = false) Byte salary,
             @RequestParam(name = "educationType",required = false) Byte educationType
     ) {
+        System.out.println("page: "+page+" size: "+size);
         Pageable pageable = PageRequest.of(page, size);
         return ResponseUtils.response(recruitmentService::searchByPage,pageable,name,jobType,city,industryId,workTimeType,salary,educationType);
     }
+    @GetMapping("/search2")
+    public ResponseEntity<Page<Recruitment>> searchRecruitment2(
+            @RequestParam(name = "jobName", required = false) String name,
+            @RequestParam(name = "jobType", required = false) Integer jobType,
+            @RequestParam(name = "city", required = false) String city,
+            @RequestParam(name = "industryId", required = false) Long industryId,
+            @RequestParam(name = "workTimeType", required = false) Byte workTimeType,
+            @RequestParam(name = "salary", required = false) Byte salary,
+            @RequestParam(name = "educationType", required = false) Byte educationType,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "8") int pageSize
+    ) {
+        System.out.println("selectPosts: " +
+                "name:" + name +
+                " jobType:" + jobType +
+                " city:" + city +
+                " industryId:" + industryId +
+                " workTimeType:" + workTimeType +
+                " salary:" + salary +
+                " educationType:" + educationType +
+                " page:" + page +
+                " pageSize:" + pageSize);
+
+        Page<Recruitment> searchResult = recruitmentService.search2(
+                name,
+                jobType,
+                city,
+                industryId,
+                workTimeType,
+                salary,
+                educationType,
+                page,
+                pageSize
+        );
+
+        return ResponseEntity.ok(searchResult);
+    }
     //根据职位id返回职位的所有信息
+//    @CacheableToJSON(cacheNames = "recruitment_info", key = "#id", time = 60)
     @GetMapping("/getByID/{id}")
     public ResponseEntity<Recruitment> getByID(@PathVariable("id") Long id){
-        System.out.println("getbyid");
         return ResponseUtils.response(recruitmentService::findById, id);
     }
     //删除职位
@@ -125,5 +169,45 @@ public class RecruitmentController {
             return ResponseUtils.response(recruitmentService::update,recruitment);
         } catch (Exception ignored) {}
         return null;
+    }
+    @PostMapping("/recommend")
+    public ResponseEntity<List<Recruitment>> recommendRecruitment(
+            @RequestBody Employee employee,
+            @RequestParam(name = "jobName",required = false) String name,
+            @RequestParam(name = "jobType",required = false) Integer jobType,
+            @RequestParam(name = "city",required = false) String city,
+            @RequestParam(name = "industryId",required = false) Long industryId,
+            @RequestParam(name = "workTimeType",required = false) Byte workTimeType,
+            @RequestParam(name = "salary",required = false) Byte salary,
+            @RequestParam(name = "educationType",required = false) Byte educationType
+    ) {
+//        System.out.println("employee"+ employee +"selectPosts: "+"name:"+name+" jobType:"+jobType+" city:"+city+" industryId:"+industryId+" workTimeType:"+workTimeType+" salary:"+salary+" educationType:"+educationType);
+        return ResponseUtils.response(recruitmentService::recommend, employee, name,jobType,city,industryId,workTimeType,salary,educationType);
+    }
+
+    //招聘方将优秀招聘者添加收藏夹
+    @PostMapping("/favorites/{userId}/{recruitmentId}")
+    public ResponseEntity<String> addFavorites(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(recruitmentService::addFavorites,userId,recruitmentId);
+    }
+    //取消收藏
+    @DeleteMapping("/favorites/{userId}/{recruitmentId}")
+    public ResponseEntity<String> deleteFavorites(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        System.out.println("开始取消收藏");
+        return ResponseUtils.response(recruitmentService::deleteFavorites,userId,recruitmentId);
+    }
+    //获取招聘方的收藏列表
+    @GetMapping("/favorites/{recruitmentId}")
+    public ResponseEntity<List<Employee>> getFavorites(@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(recruitmentService::getFavorites,recruitmentId);
+    }
+    @GetMapping("/favorites/{userId}/{recruitmentId}")
+    public ResponseEntity<String> isFavorites(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
+        return ResponseUtils.response(recruitmentService::isFavorites,userId,recruitmentId);
+    }
+    @CacheableToNotJSON(cacheNames = "recruitmentCount",time = 60)
+    @GetMapping("/countAll")
+    public Long countAll() {
+        return recruitmentService.countAll();
     }
 }

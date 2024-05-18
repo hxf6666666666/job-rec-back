@@ -45,6 +45,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     @Override
     public String uploadResume(MultipartFile file, Long employeeId) {
+        long time1 = System.currentTimeMillis();
         // 检查文件是否为空
         if (file.isEmpty()) {
             return "上传的简历为空";
@@ -67,6 +68,8 @@ public class ResumeServiceImpl implements ResumeService {
 
         // 检查数据库中是否存在该用户的简历
         Optional<Resume> existingResumeOptional = Optional.ofNullable(resumeRepository.findByEmployeeId(employeeId));
+        long time2 = System.currentTimeMillis();
+        System.out.println("第一步耗时："+(time2-time1)+"ms");
         if (existingResumeOptional.isPresent()) {
             // 如果存在，先删除旧简历文件
             Resume existingResume = existingResumeOptional.get();
@@ -79,6 +82,8 @@ public class ResumeServiceImpl implements ResumeService {
             } catch (QSException e) {
                 throw new RuntimeException(e);
             }
+            long time15=System.currentTimeMillis();
+            System.out.println("上传到文件系统耗时："+(time15-time2)+"ms");
             // 更新数据库中的简历信息
             existingResume.setFileName(file.getOriginalFilename());
             existingResume.setFileSize(file.getSize());
@@ -95,6 +100,8 @@ public class ResumeServiceImpl implements ResumeService {
             resume.setFilePath("resume/" + filePath);
             resumeRepository.save(resume);
         }
+        long time3 = System.currentTimeMillis();
+        System.out.println("保存信息到数据库耗时：" + (time3 - time2) + "ms");
         EnvContext env = new EnvContext(qingStorConfig.getAccessKeyId(),qingStorConfig.getSecretAccessKey());
         String zoneKey = "pek3b";
         String bucketName = "hexinfeng";
@@ -116,6 +123,8 @@ public class ResumeServiceImpl implements ResumeService {
             input.setBodyInputFile(tempFile);
             bucket.putObject(fileName, input);
             tempFile.deleteOnExit();
+            long time4 = System.currentTimeMillis();
+            System.out.println("最后一步耗时：" + (time4 - time3) + "ms");
             return "简历上传成功";
         } catch (QSException e) {
             return "简历上传失败";

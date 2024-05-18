@@ -26,8 +26,12 @@ public interface UserService {
     void addHistory(Long userId,Long recruitmentId);
 
     String addFavorites(Long userId,Long recruitmentId);
+    String deleteFavorites(Long userId,Long recruitmentId);
+    String isFavorites(Long userId,Long recruitmentId);
 
     String addApplications(Long userId,Long recruitmentId);
+    String deleteApplications(Long userId,Long recruitmentId);
+    String isApplications(Long userId,Long recruitmentId);
 
     List<Recruitment> getHistory(Long userId);
 
@@ -42,4 +46,13 @@ public interface UserService {
 
 
     List<Employee> getWinners(Long recruitmentId);
+
+
+    List<Employee> getFavorites2(Long recruitmentId);
+
+    List<Employee> getOffers2(Long recruitmentId);
+
+    String isDistribute(Long userId,Long recruitmentId);
+
+    String cancelOffer(Long userId,Long recruitmentId);
 }
