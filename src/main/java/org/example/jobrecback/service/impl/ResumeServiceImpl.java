@@ -12,10 +12,6 @@ import org.example.jobrecback.dao.ResumeRepository;
 import org.example.jobrecback.pojo.Resume;
 import org.example.jobrecback.service.ResumeService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,10 +150,6 @@ public class ResumeServiceImpl implements ResumeService {
     public List<Resume> findAll() {
         return resumeRepository.findAll();
     }
-    @Override
-    public Page<Resume> findAllByPage(Pageable pageable) {
-        return resumeRepository.findAll(pageable);
-    }
 
     @Transactional
     @Override
@@ -183,31 +175,10 @@ public class ResumeServiceImpl implements ResumeService {
 
         return resumeRepository.findAll(spec);
     }
-    @Transactional
+
     @Override
-    public Page<Resume> searchResumeByPage(Pageable pageable,String fileName, String uploaderName) {
-        // 根据uploaderName从employee表中根据realName找到所有匹配的employeeId
-        List<Long> employeeIds = Collections.emptyList();
-        if (StringUtils.hasText(uploaderName)) {
-            employeeIds = employeeRepository.findIdsByRealNameContaining(uploaderName);
-        }
-
-        // 根据找到的employeeId和fileName找到对应的resume
-        List<Long> finalEmployeeIds = employeeIds;
-        Specification<Resume> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (!finalEmployeeIds.isEmpty()) {
-                predicates.add(root.get("employeeId").in(finalEmployeeIds));
-            }
-            if (StringUtils.hasText(fileName)) {
-                predicates.add(cb.like(root.get("fileName"), "%" + fileName + "%"));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-        Sort sort = Sort.by(Sort.Direction.DESC, "uploadTime");
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
-        return resumeRepository.findAll(spec,pageable);
+    public Resume findResumeById(Long id) {
+        return resumeRepository.findById(id).get();
     }
 
     private String getFileExtension(String fileName) {

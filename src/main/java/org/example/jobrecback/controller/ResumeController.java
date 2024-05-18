@@ -9,9 +9,6 @@ import org.example.jobrecback.service.EmployeeService;
 import org.example.jobrecback.service.ResumeService;
 import org.example.jobrecback.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +25,17 @@ public class ResumeController {
     private ResumeService resumeService;
     @Resource
     private EmployeeService employeeService;
+
+    //获取用户上传的简历信息
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<Resume> getByid(@PathVariable Long id){
+        try{
+            Resume resume = resumeService.findResumeById(id);
+            return ResponseEntity.ok(resume);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     //获取用户上传的简历信息
     @Transactional
@@ -49,18 +57,12 @@ public class ResumeController {
         }
     }
 
-
-
     //获取全部简历
     @GetMapping("/getAll")
     public  ResponseEntity<List<Resume>> getAll(){
         return ResponseUtils.response(resumeService::findAll);
     }
-    @GetMapping("/getAll/{page}/{size}")
-    public ResponseEntity<Page<Resume>> getAll(@PathVariable int page, @PathVariable int size){
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseUtils.response(resumeService::findAllByPage,pageable);
-    }
+
     //上传兼更新
     @PostMapping("/upload/{employeeId}")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,@PathVariable("employeeId") Long employeeId){

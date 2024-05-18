@@ -45,7 +45,7 @@ public class ResponseUtils {
             consumer.accept(t);
             return new ResponseEntity<>("操作成功", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("操作失败:"+e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("操作失败", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     public static <T, R> R response2(Function<T,R> function,T t){
@@ -98,6 +98,7 @@ public class ResponseUtils {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     public static <A, B, C, D, E, F, G, H, R> ResponseEntity<R> response(EightFunction<A, B, C, D, E, F, G, H, R> function, A a, B b, C c, D d, E e, F f, G g, H h) {
         try {
             R r = function.apply(a, b, c, d, e, f, g, h);
@@ -113,5 +114,19 @@ public class ResponseUtils {
         }
     }
 
+    public static <A, B, C, D, E, F, G, H, I, J, R> ResponseEntity<R> response(TenFunction<A, B, C, D, E, F, G, H, I, J, R> function, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j) {
+        try {
+            R r = function.apply(a, b, c, d, e, f, g, h, i, j);
+            if (r != null) {
+                return new ResponseEntity<>(r, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalArgumentException e1) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e1) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
