@@ -4,15 +4,12 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.AES;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import jakarta.annotation.Resource;
 import jakarta.persistence.criteria.Predicate;
 import org.example.jobrecback.dao.EmployeeRepository;
 import org.example.jobrecback.dao.JobFavoritesRecruitmentRepository;
 import org.example.jobrecback.dao.RecruitmentRepository;
 import org.example.jobrecback.pojo.Employee;
-import org.example.jobrecback.pojo.JobFavorites;
 import org.example.jobrecback.pojo.JobFavoritesRecruitment;
 import org.example.jobrecback.pojo.Recruitment;
 import org.example.jobrecback.service.RecruitmentService;
@@ -283,7 +280,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             if (!StringUtils.isEmpty(updatedRecruitment.getWorkTimeType())) {
                 existingRecruitment.setWorkTimeType(updatedRecruitment.getWorkTimeType());
             }
-
+            existingRecruitment.setUpdateTime(Instant.now());
             // 保存更新后的招聘信息对象到数据库中
             recruitmentRepository.save(existingRecruitment);
         } else {
@@ -621,7 +618,6 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     public String deleteFavorites(Long userId, Long recruitmentId){
         try{
             long l = jobFavoritesRecruitmentRepository.deleteByUserIdAndRecruitmentId(userId, recruitmentId);
-            System.out.println("删除的索引:"+l);
             if(l>0)return "操作成功";
             else return "操作失败";
         }catch (Exception e){
@@ -636,7 +632,13 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         List<Employee> employeeList = new ArrayList<>();
         for (Long userId : userIds){
             Employee employee = employeeRepository.findByUserId(userId);
-            employeeList.add(employee);
+            try{
+                encryptEmployee(employee);
+                employeeList.add(employee);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
         return employeeList;
     }
@@ -649,5 +651,67 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     public Long countAll() {
         return recruitmentRepository.count();
+    }
+
+    public void getEmployeeDecrypt(Employee employee) {
+        AES aes = SecureUtil.aes(AES_KEY.getBytes());
+        employeeDecrypt(aes, employee);
+    }
+    public void employeeDecrypt(AES aes, Employee employee1) {
+        if (employee1.getAddress() != null) {
+            employee1.setAddress(new String(aes.decrypt(employee1.getAddress()), StandardCharsets.UTF_8));
+        }
+        if (employee1.getEmail() != null) {
+            employee1.setEmail(new String(aes.decrypt(employee1.getEmail()), StandardCharsets.UTF_8));
+        }
+        if (employee1.getQqNumber() != null) {
+            employee1.setQqNumber(new String(aes.decrypt(employee1.getQqNumber()), StandardCharsets.UTF_8));
+        }
+        if (employee1.getRealName() != null) {
+            employee1.setRealName(new String(aes.decrypt(employee1.getRealName()), StandardCharsets.UTF_8));
+        }
+        if (employee1.getUserPhone() != null) {
+            employee1.setUserPhone(new String(aes.decrypt(employee1.getUserPhone()), StandardCharsets.UTF_8));
+        }
+        if (employee1.getWechat() != null) {
+            employee1.setWechat(new String(aes.decrypt(employee1.getWechat()), StandardCharsets.UTF_8));
+        }
+    }
+    public void encryptEmployee(Employee employee){
+        getEmployeeDecrypt(employee);
+        if (employee.getAddress() != null) {
+            employee.setAddress("已隐藏");
+        }else employee.setAddress("暂无");
+        if (employee.getEmail() != null) {
+            employee.setEmail("已隐藏");
+        }else employee.setEmail("暂无");
+        if (employee.getQqNumber() != null) {
+            employee.setQqNumber("已隐藏");
+        }else employee.setQqNumber("暂无");
+        String realName = employee.getRealName();
+        if (realName != null && !realName.isEmpty()) {
+            String masked = realName.charAt(0) +
+                    "*".repeat(realName.length() - 1);
+            employee.setRealName(masked);
+        }else employee.setRealName("暂无");
+        if (employee.getUserPhone() != null) {
+            if(employee.getUserPhone().length() == 11){
+                String encryptedPhone = employee.getUserPhone().substring(0, 3) + "****" + employee.getUserPhone().substring(employee.getUserPhone().length() - 4);
+                employee.setUserPhone(encryptedPhone);
+            }else if(employee.getUserPhone().length() == 8){
+                String encryptedPhone = employee.getUserPhone().substring(0, 4) + "****";
+                employee.setUserPhone(encryptedPhone);
+            }else employee.setUserPhone("暂无");
+        }else employee.setUserPhone("暂无");
+        if (employee.getWechat() != null) {
+            employee.setWechat("已隐藏");
+        }else employee.setWechat("暂无");
+        if (employee.getDateOfBirth() !=null && !employee.getDateOfBirth().isEmpty()){
+            if(employee.getDateOfBirth().length()>=4){
+                String dateOfBirth = employee.getDateOfBirth();
+                String maskedDate = dateOfBirth.substring(0, 4)+"年"; // 只取前四个字符，即年份
+                employee.setDateOfBirth(maskedDate);
+            }else employee.setDateOfBirth("暂无");
+        }else employee.setDateOfBirth("暂无");
     }
 }

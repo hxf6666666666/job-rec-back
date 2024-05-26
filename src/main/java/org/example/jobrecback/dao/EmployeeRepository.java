@@ -1,6 +1,8 @@
 package org.example.jobrecback.dao;
 
 import org.example.jobrecback.pojo.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +22,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     List<Long> findIdsByRealNameContaining(String uploaderName);
 
     Employee findByUserId(Long userId);
+    @Query("SELECT e FROM Employee e ORDER BY e.createTime DESC")
+    Page<Employee> findAllOrderByCreateTimeDesc(Pageable pageable);
 }

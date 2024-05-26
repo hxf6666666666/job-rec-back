@@ -124,17 +124,18 @@ public class EmployeeServiceImpl implements EmployeeService {
             if(employee1!=null){
                 System.out.println(employee1.getUserId());
                 getEmployeeDecrypt(employee1);
+//                encryptEmployee(employee1);
                 return employee1;
             }else{
                 //用户没有求职者信息，新建信息
-//                Employee employee = new Employee();
-//                employee.setUserId(userId);
-//                employee.setCreateTime(Instant.now());
-//                employee.setUpdateTime(Instant.now());
-//                employeeRepository.save(employee);
-//                return employee;
                 System.out.println("求职者还未上传简历!");
-                return new Employee();
+                Employee employee = new Employee();
+                employee.setUserId(userId);
+                employee.setCreateTime(Instant.now());
+                employee.setUpdateTime(Instant.now());
+                employeeRepository.save(employee);
+                return employee;
+//                return new Employee();
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -142,9 +143,47 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
-    public void getEmployeeDecrypt(Employee employee1) {
+    public void getEmployeeDecrypt(Employee employee) {
         AES aes = SecureUtil.aes(AES_KEY.getBytes());
-        employeeDecrypt(aes, employee1);
+        employeeDecrypt(aes, employee);
+    }
+    public void encryptEmployee(Employee employee){
+        getEmployeeDecrypt(employee);
+        System.out.println("开始部分加密");
+        if (employee.getAddress() != null) {
+            employee.setAddress("已隐藏");
+        }else employee.setAddress("暂无");
+        if (employee.getEmail() != null) {
+            employee.setEmail("已隐藏");
+        }else employee.setEmail("暂无");
+        if (employee.getQqNumber() != null) {
+            employee.setQqNumber("已隐藏");
+        }else employee.setQqNumber("暂无");
+        String realName = employee.getRealName();
+        if (realName != null && !realName.isEmpty()) {
+            String masked = realName.charAt(0) +
+                    "*".repeat(realName.length() - 1);
+            employee.setRealName(masked);
+        }else employee.setRealName("暂无");
+        if (employee.getUserPhone() != null) {
+            if(employee.getUserPhone().length() == 11){
+                String encryptedPhone = employee.getUserPhone().substring(0, 3) + "****" + employee.getUserPhone().substring(employee.getUserPhone().length() - 4);
+                employee.setUserPhone(encryptedPhone);
+            }else if(employee.getUserPhone().length() == 8){
+                String encryptedPhone = employee.getUserPhone().substring(0, 4) + "****";
+                employee.setUserPhone(encryptedPhone);
+            }else employee.setUserPhone("暂无");
+        }else employee.setUserPhone("暂无");
+        if (employee.getWechat() != null) {
+            employee.setWechat("已隐藏");
+        }else employee.setWechat("暂无");
+        if (employee.getDateOfBirth() !=null && !employee.getDateOfBirth().isEmpty()){
+            if(employee.getDateOfBirth().length()>=4){
+                String dateOfBirth = employee.getDateOfBirth();
+                String maskedDate = dateOfBirth.substring(0, 4)+"年"; // 只取前四个字符，即年份
+                employee.setDateOfBirth(maskedDate);
+            }else employee.setDateOfBirth("暂无");
+        }else employee.setDateOfBirth("暂无");
     }
 
     @Transactional
@@ -204,10 +243,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 //对employee表中的date_of_birth,email,qq_number,real_name,user_phone,wechat这几个隐私信息的字段信息使用AES对称加密
                 employeeEncryption(employee, employee);
                 List<EducationExperience> educationExperiences = employee.getEducationExperiences();
-                educationExperiences.forEach(educationExperience -> {
-                    educationExperience.setEmployee(employee);
-                    }
-                );
+                if(educationExperiences!=null){
+                    educationExperiences.forEach(educationExperience -> {
+                                educationExperience.setEmployee(employee);
+                            }
+                    );
+                }
                 employeeRepository.save(employee);
                 System.out.println("新增成功");
                 return "新增成功";
@@ -245,6 +286,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             for (Employee employee : employeeList) {
                 double matchScore = calculateMatchScore(employee, recruitment);
 //                getEmployeeDecrypt(employee);
+                encryptEmployee(employee);
                 matchedEmployees.add(new EmployeeWithMatchScore(employee, matchScore));
             }
 

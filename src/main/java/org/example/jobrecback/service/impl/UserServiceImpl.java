@@ -70,6 +70,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
+        user.setUserPassword(BCrypt.hashpw(user.getUserPassword()));
         return userRepository.save(user);
     }
 
@@ -320,22 +321,50 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public List<Employee> getOffers2(Long recruitmentId){
-        List<Long> userIds = jobApplicationsRepository.findUserIdByRecruitmentIdAndOfferStatus(recruitmentId,"已投递");
-        List<Employee> employeeList = new ArrayList<>();
-        return getEmployees(userIds, employeeList);
+        try{
+            List<Long> userIds = jobApplicationsRepository.findUserIdByRecruitmentIdAndOfferStatus(recruitmentId,"已投递");
+            List<Employee> employeeList = new ArrayList<>();
+            return getEmployees(userIds, employeeList);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private List<Employee> getEmployees(List<Long> userIds, List<Employee> employeeList) {
         for (Long userId : userIds) {
             Employee employee1 = employeeRepository.findByUserId(userId);
-            AES aes = SecureUtil.aes(AES_KEY.getBytes());
-            employee1.setAddress(new String(aes.decrypt(employee1.getAddress()), StandardCharsets.UTF_8));
-            employee1.setEmail(new String(aes.decrypt(employee1.getEmail()), StandardCharsets.UTF_8));
-            employee1.setQqNumber(new String(aes.decrypt(employee1.getQqNumber()), StandardCharsets.UTF_8));
-            employee1.setRealName(new String(aes.decrypt(employee1.getRealName()), StandardCharsets.UTF_8));
-            employee1.setUserPhone(new String(aes.decrypt(employee1.getUserPhone()), StandardCharsets.UTF_8));
-            employee1.setWechat(new String(aes.decrypt(employee1.getWechat()), StandardCharsets.UTF_8));
-            employeeList.add(employee1);
+            if (employee1 != null) {
+                AES aes = SecureUtil.aes(AES_KEY.getBytes());
+                // 判断用户简历是否为空
+                boolean flag = false;
+                // 确保解密的数据非空，再进行操作
+                if (employee1.getAddress() != null) {
+                    employee1.setAddress(new String(aes.decrypt(employee1.getAddress()), StandardCharsets.UTF_8));
+                    flag=true;
+                }
+                if (employee1.getEmail() != null) {
+                    employee1.setEmail(new String(aes.decrypt(employee1.getEmail()), StandardCharsets.UTF_8));
+                    flag=true;
+                }
+                if (employee1.getQqNumber() != null) {
+                    employee1.setQqNumber(new String(aes.decrypt(employee1.getQqNumber()), StandardCharsets.UTF_8));
+                    flag=true;
+                }
+                if (employee1.getRealName() != null) {
+                    employee1.setRealName(new String(aes.decrypt(employee1.getRealName()), StandardCharsets.UTF_8));
+                    flag=true;
+                }
+                if (employee1.getUserPhone() != null) {
+                    employee1.setUserPhone(new String(aes.decrypt(employee1.getUserPhone()), StandardCharsets.UTF_8));
+                    flag=true;
+                }
+                if (employee1.getWechat() != null) {
+                    employee1.setWechat(new String(aes.decrypt(employee1.getWechat()), StandardCharsets.UTF_8));
+                    flag=true;
+                }
+                if(flag)employeeList.add(employee1);
+            }
         }
         return employeeList;
     }

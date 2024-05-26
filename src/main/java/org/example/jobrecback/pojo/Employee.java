@@ -71,11 +71,11 @@ public class Employee {
     private String email;
 
     // QQ号码
-    @Column(name = "qqNumber", length = 20)
+    @Column(name = "qqNumber", length = 128)
     private String qqNumber;
 
     // 微信号码
-    @Column(name = "wechat", length = 50)
+    @Column(name = "wechat", length = 128)
     private String wechat;
 
     // 技能标签，数量不定

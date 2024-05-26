@@ -193,7 +193,6 @@ public class RecruitmentController {
     //取消收藏
     @DeleteMapping("/favorites/{userId}/{recruitmentId}")
     public ResponseEntity<String> deleteFavorites(@PathVariable("userId")Long userId,@PathVariable("recruitmentId")Long recruitmentId) {
-        System.out.println("开始取消收藏");
         return ResponseUtils.response(recruitmentService::deleteFavorites,userId,recruitmentId);
     }
     //获取招聘方的收藏列表

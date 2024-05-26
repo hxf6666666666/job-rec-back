@@ -37,11 +37,11 @@ public class Recruitment {
     private String companyName;
 
     //职位大类id
-    @Column(name = "industryId", nullable = false)
+    @Column(name = "industryId")
     private Long industryId;
 
     //职位描述
-    @Column(name = "jobDescription", length = 1024, nullable = false, columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+    @Column(name = "jobDescription", length = 1024, columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String jobDescription;
 
     //最低学历要求，编号（0:不限，1：大专，2：本科，3：硕士，4：博士）
@@ -61,7 +61,7 @@ public class Recruitment {
     private String jobSkills;
 
     //0：全职，1:实习
-    @Column(name = "jobType", nullable = false)
+    @Column(name = "jobType")
     private Integer jobType;
 
     //职位详细地址
@@ -90,11 +90,11 @@ public class Recruitment {
     private String city;
 
     // 发布时间
-    @Column(name = "createTime", nullable = false)
+    @Column(name = "createTime")
     private Instant createTime;
 
     // 更新时间
-    @Column(name = "updateTime", nullable = false)
+    @Column(name = "updateTime")
     private Instant updateTime;
 
     public Recruitment() {

@@ -37,13 +37,13 @@ public class User {
     @Column(name = "userRole", nullable = false, length = 256)
     private String userRole;
     // 创建时间
-    @Column(name = "createTime", nullable = false)
+    @Column(name = "createTime")
     private Instant createTime;
     // 更新时间
-    @Column(name = "updateTime", nullable = false)
+    @Column(name = "updateTime")
     private Instant updateTime;
     // 是否禁用
-    @Column(name = "isDisabled", nullable = false)
+    @Column(name = "isDisabled")
     private Byte isDisabled;
 
 }
